@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>造梦空间 - 沉浸式实景旅游体验</title>
+    <link rel="stylesheet" href="app.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <!-- 启动屏 -->
+    <div id="splash-screen" class="screen active">
+        <div class="splash-content">
+            <div class="logo-icon">🌙</div>
+            <h1>造梦空间</h1>
+            <p>沉浸式实景旅游体验平台</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录/注册页面 -->
+    <div id="auth-screen" class="screen">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="logo-large">🌙</div>
+                <h1>造梦空间</h1>
+                <p>开启你的沉浸式旅程</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">登录</button>
+                <button class="auth-tab" data-tab="register">注册</button>
+            </div>
+
+            <!-- 登录表单 -->
+            <form id="login-form" class="auth-form active">
+                <div class="input-group">
+                    <label>手机号</label>
+                    <input type="tel" id="login-phone" placeholder="请输入手机号" maxlength="11">
+                </div>
+                <div class="input-group">
+                    <label>密码</label>
+                    <input type="password" id="login-password" placeholder="请输入密码">
+                </div>
+                <div class="auth-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember-me">
+                        <span>记住我</span>
+                    </label>
+                    <a href="#" class="forgot-link">忘记密码？</a>
+                </div>
+                <button type="submit" class="btn-primary">登录</button>
+                <div class="social-login">
+                    <p>其他登录方式</p>
+                    <div class="social-icons">
+                        <button type="button" class="social-btn wechat" title="微信登录">📱</button>
+                        <button type="button" class="social-btn alipay" title="支付宝登录">💳</button>
+                        <button type="button" class="social-btn apple" title="Apple登录">🍎</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- 注册表单 -->
+            <form id="register-form" class="auth-form">
+                <div class="input-group">
+                    <label>手机号</label>
+                    <input type="tel" id="register-phone" placeholder="请输入手机号" maxlength="11">
+                </div>
+                <div class="input-group">
+                    <label>验证码</label>
+                    <div class="input-with-btn">
+                        <input type="text" id="register-code" placeholder="请输入验证码" maxlength="6">
+                        <button type="button" id="send-code-btn" class="btn-code">获取验证码</button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>设置密码</label>
+                    <input type="password" id="register-password" placeholder="请设置6-20位密码">
+                </div>
+                <div class="input-group">
+                    <label>确认密码</label>
+                    <input type="password" id="register-confirm" placeholder="请再次输入密码">
+                </div>
+                <div class="input-group">
+                    <label>昵称</label>
+                    <input type="text" id="register-nickname" placeholder="请输入昵称">
+                </div>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="agree-terms">
+                    <span>我已阅读并同意<a href="#">《用户协议》</a>和<a href="#">《隐私政策》</a></span>
+                </label>
+                <button type="submit" class="btn-primary">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 主应用界面 -->
+    <div id="main-app" class="screen">
+        <!-- 顶部状态栏 -->
+        <div class="status-bar">
+            <span class="time" id="current-time">09:00</span>
+            <div class="status-icons">
+                <span>📶</span>
+                <span>🔋</span>
+            </div>
+        </div>
+
+        <!-- 页面内容区域 -->
+        <div class="page-content" id="page-container">
+            <!-- 首页 -->
+            <div id="home-page" class="page active">
+                <div class="page-header">
+                    <div class="user-greeting">
+                        <span class="greeting-text">Hi, <span id="user-name-display">旅行者</span></span>
+                        <span class="greeting-sub">今天想去哪里探险？</span>
+                    </div>
+                    <div class="header-actions">
+                        <button class="icon-btn" id="search-btn">🔍</button>
+                        <button class="icon-btn" id="notification-btn">🔔</button>
+                    </div>
+                </div>
+
+                <!-- 搜索栏 -->
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索剧本、景区、创作者..." id="main-search">
+                    <button class="search-icon">🔍</button>
+                </div>
+
+                <!-- 轮播图 -->
+                <div class="banner-carousel">
+                    <div class="carousel-wrapper">
+                        <div class="carousel-slide active" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="banner-content">
+                                <h3>🎭 悬疑推理季</h3>
+                                <p>迷雾山庄、消失的证人等热门剧本等你来挑战</p>
+                                <button class="banner-btn">立即体验</button>
+                            </div>
+                        </div>
+                        <div class="carousel-slide" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <div class="banner-content">
+                                <h3>💖 浪漫情人节特辑</h3>
+                                <p>双人成行，第二人半价</p>
+                                <button class="banner-btn">查看详情</button>
+                            </div>
+                        </div>
+                        <div class="carousel-slide" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <div class="banner-content">
+                                <h3>🏔️ 新景区上线</h3>
+                                <p>黄山景区联动剧本《仙人指路》</p>
+                                <button class="banner-btn">探索更多</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                </div>
+
+                <!-- 快捷入口 -->
+                <div class="quick-actions">
+                    <div class="action-item" data-action="scripts">
+                        <div class="action-icon">📚</div>
+                        <span>剧本库</span>
+                    </div>
+                    <div class="action-item" data-action="map">
+                        <div class="action-icon">🗺️</div>
+                        <span>景区地图</span>
+                    </div>
+                    <div class="action-item" data-action="booking">
+                        <div class="action-icon">🎫</div>
+                        <span>预约</span>
+                    </div>
+                    <div class="action-item" data-action="creator">
+                        <div class="action-icon">✍️</div>
+                        <span>创作者</span>
+                    </div>
+                    <div class="action-item" data-action="rank">
+                        <div class="action-icon">🏆</div>
+                        <span>排行榜</span>
+                    </div>
+                </div>
+
+                <!-- 热门剧本推荐 -->
+                <section class="section">
+                    <div class="section-header">
+                        <h2>🔥 热门剧本</h2>
+                        <a href="#" class="more-link" data-page="scripts">更多 ></a>
+                    </div>
+                    <div class="script-list">
+                        <div class="script-card" data-id="1">
+                            <div class="script-cover" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                                <span class="script-type">悬疑</span>
+                                <span class="script-rating">⭐ 9.2</span>
+                            </div>
+                            <div class="script-info">
+                                <h3>迷雾山庄</h3>
+                                <p class="script-desc">暴雨夜，山庄内接连发生诡异事件...</p>
+                                <div class="script-meta">
+                                    <span>👥 5人</span>
+                                    <span>⏱️ 4小时</span>
+                                    <span>💰 188/人</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="script-card" data-id="2">
+                            <div class="script-cover" style="background: linear-gradient(135deg, #2d132c 0%, #801336 100%);">
+                                <span class="script-type">恐怖</span>
+                                <span class="script-rating">⭐ 8.8</span>
+                            </div>
+                            <div class="script-info">
+                                <h3>消失的证人</h3>
+                                <p class="script-desc">证人突然消失，真相扑朔迷离...</p>
+                                <div class="script-meta">
+                                    <span>👥 4人</span>
+                                    <span>⏱️ 3小时</span>
+                                    <span>💰 158/人</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="script-card" data-id="3">
+                            <div class="script-cover" style="background: linear-gradient(135deg, #0f3443 0%, #34e89e 100%);">
+                                <span class="script-type">仙侠</span>
+                                <span class="script-rating">⭐ 9.5</span>
+                            </div>
+                            <div class="script-info">
+                                <h3>仙人指路</h3>
+                                <p class="script-desc">黄山之巅，修仙问道的传奇...</p>
+                                <div class="script-meta">
+                                    <span>👥 6人</span>
+                                    <span>⏱️ 5小时</span>
+                                    <span>💰 268/人</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 合作景区 -->
+                <section class="section">
+                    <div class="section-header">
+                        <h2>🏔️ 合作景区</h2>
+                        <a href="#" class="more-link" data-page="partner">更多 ></a>
+                    </div>
+                    <div class="scenic-list">
+                        <div class="scenic-card">
+                            <div class="scenic-image" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                                <span class="scenic-badge">黄山</span>
+                            </div>
+                            <div class="scenic-info">
+                                <h3>黄山风景区</h3>
+                                <p>12个沉浸式剧本</p>
+                                <span class="distance">📍 安徽黄山市</span>
+                            </div>
+                        </div>
+                        <div class="scenic-card">
+                            <div class="scenic-image" style="background: linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%);">
+                                <span class="scenic-badge">西湖</span>
+                            </div>
+                            <div class="scenic-info">
+                                <h3>西湖景区</h3>
+                                <p>8个古风剧本</p>
+                                <span class="distance">📍 浙江杭州</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 创作者推荐 -->
+                <section class="section">
+                    <div class="section-header">
+                        <h2>✍️ 创作者推荐</h2>
+                        <a href="#" class="more-link" data-page="creator">更多 ></a>
+                    </div>
+                    <div class="creator-list">
+                        <div class="creator-card">
+                            <div class="creator-avatar">🎭</div>
+                            <div class="creator-info">
+                                <h4>剧本大师</h4>
+                                <p>创作 28 部剧本 · 1.2万粉丝</p>
+                            </div>
+                            <button class="follow-btn">关注</button>
+                        </div>
+                        <div class="creator-card">
+                            <div class="creator-avatar">🗡️</div>
+                            <div class="creator-info">
+                                <h4>江湖客</h4>
+                                <p>创作 15 部剧本 · 8千粉丝</p>
+                            </div>
+                            <button class="follow-btn">关注</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 剧本列表页 -->
+            <div id="scripts-page" class="page">
+                <div class="page-header with-back">
+                    <button class="back-btn" data-back="home">←</button>
+                    <h1>剧本库</h1>
+                </div>
+                
+                <!-- 筛选栏 -->
+                <div class="filter-bar">
+                    <div class="filter-item active">全部</div>
+                    <div class="filter-item">悬疑</div>
+                    <div class="filter-item">恐怖</div>
+                    <div class="filter-item">仙侠</div>
+                    <div class="filter-item">爱情</div>
+                    <div class="filter-item">武侠</div>
+                </div>
+
+                <!-- 剧本网格 -->
+                <div class="script-grid" id="scripts-grid">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+
+            <!-- 剧本详情页 -->
+            <div id="script-detail-page" class="page">
+                <div class="page-header with-back">
+                    <button class="back-btn" data-back="scripts">←</button>
+                    <h1>剧本详情</h1>
+                    <button class="icon-btn">❤️</button>
+                </div>
+                <div class="detail-content" id="script-detail-content">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+
+            <!-- 预约页面 -->
+            <div id="booking-page" class="page">
+                <div class="page-header with-back">
+                    <button class="back-btn" data-back="home">←</button>
+                    <h1>预约体验</h1>
+                </div>
+                <div class="booking-content">
+                    <div class="booking-card">
+                        <h3>迷雾山庄</h3>
+                        <p class="booking-location">📍 黄山风景区 · 西海大峡谷</p>
+                        
+                        <div class="booking-section">
+                            <label>选择日期</label>
+                            <div class="date-picker">
+                                <div class="date-item">周六<br>4/26</div>
+                                <div class="date-item active">周日<br>4/27</div>
+                                <div class="date-item">周一<br>4/28</div>
+                                <div class="date-item">周二<br>4/29</div>
+                            </div>
+                        </div>
+
+                        <div class="booking-section">
+                            <label>选择场次</label>
+                            <div class="time-slots">
+                                <div class="time-slot">09:00-13:00</div>
+                                <div class="time-slot active">14:00-18:00</div>
+                                <div class="time-slot">19:00-23:00</div>
+                            </div>
+                        </div>
+
+                        <div class="booking-section">
+                            <label>参与人数</label>
+                            <div class="counter">
+                                <button class="counter-btn minus">-</button>
+                                <span class="counter-value">2</span>
+                                <button class="counter-btn plus">+</button>
+                            </div>
+                            <span class="price-info">188元/人</span>
+                        </div>
+
+                        <div class="booking-total">
+                            <span>总计</span>
+                            <span class="total-price">¥376</span>
+                        </div>
+
+                        <button class="btn-primary btn-booking">确认预约</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 个人中心页 -->
+            <div id="profile-page" class="page">
+                <div class="profile-header">
+                    <div class="profile-avatar">👤</div>
+                    <h2 id="profile-name">用户昵称</h2>
+                    <p id="profile-phone">138****8888</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-num">12</span>
+                            <span class="stat-label">体验次数</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-num">3</span>
+                            <span class="stat-label">收藏剧本</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-num">89</span>
+                            <span class="stat-label">积分</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-menu">
+                    <div class="menu-item" data-action="orders">
+                        <span class="menu-icon">📋</span>
+                        <span>我的订单</span>
+                        <span class="menu-arrow">></span>
+                    </div>
+                    <div class="menu-item" data-action="favorites">
+                        <span class="menu-icon">❤️</span>
+                        <span>我的收藏</span>
+                        <span class="menu-arrow">></span>
+                    </div>
+                    <div class="menu-item" data-action="reviews">
+                        <span class="menu-icon">⭐</span>
+                        <span>我的评价</span>
+                        <span class="menu-arrow">></span>
+                    </div>
+                    <div class="menu-item" data-action="coupons">
+                        <span class="menu-icon">🎫</span>
+                        <span>优惠券</span>
+                        <span class="badge">3</span>
+                        <span class="menu-arrow">></span>
+                    </div>
+                    <div class="menu-item" data-action="settings">
+                        <span class="menu-icon">⚙️</span>
+                        <span>设置</span>
+                        <span class="menu-arrow">></span>
+                    </div>
+                    <div class="menu-item" data-action="help">
+                        <span class="menu-icon">❓</span>
+                        <span>帮助中心</span>
+                        <span class="menu-arrow">></span>
+                    </div>
+                </div>
+
+                <button class="btn-logout" id="logout-btn">退出登录</button>
+            </div>
+
+            <!-- 创作者中心页 -->
+            <div id="creator-page" class="page">
+                <div class="page-header with-back">
+                    <button class="back-btn" data-back="home">←</button>
+                    <h1>创作者中心</h1>
+                </div>
+                
+                <div class="creator-welcome">
+                    <h2>✨ 成为创作者</h2>
+                    <p>释放你的创意，打造独特的沉浸式剧本，让全国玩家体验你的作品</p>
+                </div>
+
+                <div class="creator-benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">💰</span>
+                        <h4>收益分成</h4>
+                        <p>剧本收益最高70%分成</p>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">📊</span>
+                        <h4>数据分析</h4>
+                        <p>实时查看剧本表现</p>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">🎯</span>
+                        <h4>精准推荐</h4>
+                        <p>平台流量扶持</p>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">🤝</span>
+                        <h4>资源对接</h4>
+                        <p>景区直连合作</p>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="apply-creator-btn">申请成为创作者</button>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-page="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">首页</span>
+            </div>
+            <div class="nav-item" data-page="scripts">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">剧本</span>
+            </div>
+            <div class="nav-item" data-page="booking">
+                <span class="nav-icon">🎫</span>
+                <span class="nav-label">预约</span>
+            </div>
+            <div class="nav-item" data-page="creator">
+                <span class="nav-icon">✍️</span>
+                <span class="nav-label">创作</span>
+            </div>
+            <div class="nav-item" data-page="profile">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">我的</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 消息提示 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 加载提示 -->
+    <div id="loading" class="loading-modal">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
