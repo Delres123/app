@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>迷雾山庄 - 造梦空间</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6B4E71;
+            --primary-light: #8B6B91;
+            --accent: #D4AF37;
+            --danger: #C0392B;
+            --success: #27AE60;
+            --warning: #F39C12;
+            --dark: #1a1a2e;
+            --darker: #0f0f1a;
+            --text: #E8E8E8;
+            --text-muted: #A0A0A0;
+            --card-bg: rgba(30, 30, 50, 0.9);
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* 启动封面 */
+        .cover-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.8s, transform 0.8s;
+        }
+        
+        .cover-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+        
+        .cover-art {
+            width: 280px;
+            height: 380px;
+            background: linear-gradient(145deg, #2d2d4a, #1a1a2e);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cover-art::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(107, 78, 113, 0.3), transparent 60%);
+        }
+        
+        .cover-emoji {
+            font-size: 80px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+        }
+        
+        .cover-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 2px 10px rgba(212, 175, 55, 0.5);
+            margin-bottom: 8px;
+        }
+        
+        .cover-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        
+        .cover-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .cover-tag {
+            background: var(--glass);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .cover-info {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .cover-rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .star {
+            color: var(--accent);
+            font-size: 18px;
+        }
+        
+        .cover-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        
+        .start-btn {
+            margin-top: 40px;
+            padding: 16px 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(107, 78, 113, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(107, 78, 113, 0.5);
+        }
+        
+        /* 游戏主界面 */
+        .game-container {
+            display: none;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        
+        .game-container.active {
+            display: block;
+        }
+        
+        /* 顶部导航 */
+        .game-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, var(--darker) 0%, transparent 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .game-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .progress-ring {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 3;
+        }
+        
+        .progress-ring .bg {
+            stroke: rgba(255,255,255,0.1);
+        }
+        
+        .progress-ring .progress {
+            stroke: var(--accent);
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dashoffset 0.5s;
+        }
+        
+        .progress-text {
+            font-size: 11px;
+            font-weight: 600;
+            fill: var(--text);
+        }
+        
+        /* 场景区域 */
+        .scene-area {
+            padding: 80px 20px 20px;
+        }
+        
+        .scene-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .scene-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #2d2d4a, #1a1a2e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            position: relative;
+        }
+        
+        .scene-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, var(--card-bg) 100%);
+        }
+        
+        .scene-content {
+            padding: 20px;
+        }
+        
+        .scene-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+        
+        .scene-desc {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
+        
+        .scene-atmosphere {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(212, 175, 55, 0.1);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            color: var(--text);
+            font-style: italic;
+        }
+        
+        /* 任务面板 */
+        .quest-panel {
+            margin: 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+        }
+        
+        .quest-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .quest-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--warning), #e67e22);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .quest-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .quest-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .quest-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--glass);
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        
+        .quest-item.completed {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+        
+        .quest-item.active {
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--accent);
+        }
+        
+        .quest-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: transparent;
+        }
+        
+        .quest-item.completed .quest-checkbox {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .quest-item.active .quest-checkbox {
+            border-color: var(--accent);
+        }
+        
+        .quest-text {
+            font-size: 13px;
+            flex: 1;
+        }
+        
+        /* NPC对话 */
+        .npc-dialog {
+            margin: 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .npc-header {
+            padding: 12px 16px;
+            background: rgba(139, 107, 145, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .npc-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--glass);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .npc-info h4 {
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+        
+        .npc-info span {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        .npc-messages {
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .message {
+            margin-bottom: 12px;
+            padding: 12px;
+            background: var(--glass);
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .message.npc {
+            background: rgba(139, 107, 145, 0.2);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .message.player {
+            background: rgba(212, 175, 55, 0.15);
+            border-left: 3px solid var(--accent);
+            margin-left: 20px;
+        }
+        
+        .dialog-options {
+            padding: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .dialog-option {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .dialog-option:hover {
+            background: rgba(139, 107, 145, 0.3);
+            border-color: var(--primary);
+        }
+        
+        .dialog-option:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* 背包 */
+        .inventory-panel {
+            margin: 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+        }
+        
+        .inventory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .inventory-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .inventory-count {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .inventory-slot {
+            aspect-ratio: 1;
+            background: var(--glass);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .inventory-slot:hover {
+            border-color: var(--primary);
+            background: rgba(139, 107, 145, 0.2);
+        }
+        
+        .inventory-slot.has-item {
+            background: linear-gradient(135deg, rgba(139, 107, 145, 0.3), rgba(212, 175, 55, 0.2));
+        }
+        
+        .inventory-slot .item-icon {
+            font-size: 24px;
+        }
+        
+        .inventory-slot .item-name {
+            font-size: 10px;
+            margin-top: 4px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        
+        .inventory-slot .item-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 解谜游戏 */
+        .puzzle-panel {
+            margin: 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        
+        .puzzle-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .puzzle-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(243, 156, 18, 0.1);
+            border-radius: 8px;
+        }
+        
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .puzzle-cell {
+            aspect-ratio: 1;
+            background: var(--glass);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .puzzle-cell:hover {
+            border-color: var(--primary);
+        }
+        
+        .puzzle-cell.selected {
+            background: rgba(139, 107, 145, 0.4);
+            border-color: var(--accent);
+        }
+        
+        .puzzle-cell.correct {
+            background: rgba(39, 174, 96, 0.3);
+            border-color: var(--success);
+        }
+        
+        .puzzle-cell.wrong {
+            background: rgba(192, 57, 43, 0.3);
+            border-color: var(--danger);
+        }
+        
+        .puzzle-input {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .puzzle-input input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            background: var(--glass);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: var(--text);
+            font-weight: 600;
+        }
+        
+        .puzzle-input input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        
+        .puzzle-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .puzzle-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .puzzle-btn:disabled {
+            opacity: 0.5;
+        }
+        
+        /* 地图导览 */
+        .map-panel {
+            margin: 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .map-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .map-container {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, #1a1a2e, #2d2d4a);
+            position: relative;
+        }
+        
+        .map-point {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: var(--glass);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .map-point:hover {
+            transform: scale(1.2);
+            border-color: var(--accent);
+        }
+        
+        .map-point.visited {
+            background: rgba(39, 174, 96, 0.3);
+            border-color: var(--success);
+        }
+        
+        .map-point.current {
+            animation: pulse 2s infinite;
+            border-color: var(--accent);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); }
+        }
+        
+        .map-legend {
+            padding: 12px 16px;
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .legend-dot.visited { background: var(--success); }
+        .legend-dot.current { background: var(--accent); }
+        .legend-dot.unvisited { background: var(--text-muted); }
+        
+        /* 底部导航 */
+        .game-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--darker);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .nav-btn.active {
+            color: var(--accent);
+        }
+        
+        .nav-btn .icon {
+            font-size: 22px;
+        }
+        
+        /* 结算界面 */
+        .settlement-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 15, 26, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            z-index: 1000;
+        }
+        
+        .settlement-screen.active {
+            display: flex;
+        }
+        
+        .settlement-badge {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--accent), #f1c40f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .settlement-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .settlement-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+        
+        .settlement-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        .settlement-rewards {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 12px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .rewards-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        
+        .rewards-list {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .reward-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .reward-icon {
+            font-size: 28px;
+        }
+        
+        .reward-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .settlement-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        
+        .settlement-btn.outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+        }
+        
+        /* 评价弹窗 */
+        .rating-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 15, 26, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1001;
+        }
+        
+        .rating-modal.active {
+            display: flex;
+        }
+        
+        .rating-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 350px;
+        }
+        
+        .rating-title {
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .rating-stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .rating-star {
+            font-size: 36px;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        
+        .rating-star.active {
+            opacity: 1;
+        }
+        
+        .rating-star:hover {
+            transform: scale(1.2);
+        }
+        
+        .rating-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            resize: none;
+            height: 80px;
+            margin-bottom: 15px;
+        }
+        
+        .rating-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* 物品详情弹窗 */
+        .item-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 15, 26, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 500;
+        }
+        
+        .item-modal.active {
+            display: flex;
+        }
+        
+        .item-detail {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+        }
+        
+        .item-detail-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .item-detail-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .item-detail-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .item-detail-close {
+            padding: 10px 30px;
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: var(--text);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--card-bg);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.4s;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 启动封面 -->
+    <div class="cover-screen" id="coverScreen">
+        <div class="cover-art">
+            <div class="cover-emoji">🏚️</div>
+            <div class="cover-title">迷雾山庄</div>
+            <div class="cover-subtitle">一场关于真相与谎言的推理之旅</div>
+            <div class="cover-tags">
+                <span class="cover-tag">🎭 悬疑推理</span>
+                <span class="cover-tag">⏱️ 3小时</span>
+                <span class="cover-tag">👥 5-8人</span>
+                <span class="cover-tag">⭐ 4.8分</span>
+            </div>
+        </div>
+        <div class="cover-info">
+            <div class="cover-rating">
+                <span class="star">★</span>
+                <span class="star">★</span>
+                <span class="star">★</span>
+                <span class="star">★</span>
+                <span class="star">★</span>
+                <span style="margin-left: 8px; font-size: 14px;">4.8分 (2,186条评价)</span>
+            </div>
+            <div class="cover-stats">
+                <span>🎯 难度: 中等</span>
+                <span>📍 景区: 云雾山</span>
+            </div>
+        </div>
+        <button class="start-btn" onclick="startGame()">开始游戏</button>
+    </div>
+    
+    <!-- 游戏主界面 -->
+    <div class="game-container" id="gameContainer">
+        <!-- 顶部导航 -->
+        <div class="game-header">
+            <div class="header-left">
+                <button class="back-btn" onclick="showCover()">←</button>
+                <span class="game-title">迷雾山庄</span>
+            </div>
+            <div class="header-right">
+                <svg class="progress-ring" viewBox="0 0 40 40">
+                    <circle class="bg" cx="20" cy="20" r="16"></circle>
+                    <circle class="progress" id="progressCircle" cx="20" cy="20" r="16" 
+                            stroke-dasharray="100" stroke-dashoffset="70"></circle>
+                    <text class="progress-text" x="20" y="24" text-anchor="middle" id="progressText">30%</text>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- 场景区域 -->
+        <div class="scene-area">
+            <div class="scene-card">
+                <div class="scene-image" id="sceneImage">🏚️</div>
+                <div class="scene-content">
+                    <h2 class="scene-title" id="sceneTitle">山庄大门</h2>
+                    <p class="scene-desc" id="sceneDesc">
+                        夜幕降临，迷雾笼罩着这座神秘的山庄。古老的铁门在风中微微作响，
+                        门上挂着一块斑驳的牌匾，依稀可见"云雾山庄"四个字。
+                    </p>
+                    <div class="scene-atmosphere" id="sceneAtmosphere">
+                        💨 风声呼啸，远处传来乌鸦的叫声...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 任务面板 -->
+        <div class="quest-panel">
+            <div class="quest-header">
+                <div class="quest-icon">📋</div>
+                <span class="quest-title">当前任务</span>
+            </div>
+            <div class="quest-list" id="questList">
+                <div class="quest-item active" data-quest="1">
+                    <div class="quest-checkbox">✓</div>
+                    <span class="quest-text">与管家对话，了解山庄情况</span>
+                </div>
+                <div class="quest-item" data-quest="2">
+                    <div class="quest-checkbox">✓</div>
+                    <span class="quest-text">调查客厅的神秘信件</span>
+                </div>
+                <div class="quest-item" data-quest="3">
+                    <div class="quest-checkbox">✓</div>
+                    <span class="quest-text">解开书房的密码锁</span>
+                </div>
+                <div class="quest-item" data-quest="4">
+                    <div class="quest-checkbox">✓</div>
+                    <span class="quest-text">找出真正的凶手</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- NPC对话 -->
+        <div class="npc-dialog">
+            <div class="npc-header">
+                <div class="npc-avatar">👴</div>
+                <div class="npc-info">
+                    <h4 id="npcName">张管家</h4>
+                    <span>山庄管家 · 服务40年</span>
+                </div>
+            </div>
+            <div class="npc-messages" id="npcMessages">
+                <div class="message npc">
+                    欢迎来到云雾山庄。我是这里的管家，姓张。老爷的离世让整个山庄陷入了悲痛...
+                    但也带来了许多疑问。您是来调查此事的吧？
+                </div>
+            </div>
+            <div class="dialog-options" id="dialogOptions">
+                <button class="dialog-option" onclick="selectDialog(1)">
+                    是的，请告诉我当晚发生了什么？
+                </button>
+                <button class="dialog-option" onclick="selectDialog(2)">
+                    山庄里有哪些可疑的人？
+                </button>
+                <button class="dialog-option" onclick="selectDialog(3)">
+                    我可以先到处看看吗？
+                </button>
+            </div>
+        </div>
+        
+        <!-- 背包 -->
+        <div class="inventory-panel">
+            <div class="inventory-header">
+                <div class="inventory-title">
+                    <span>🎒</span>
+                    <span>背包</span>
+                </div>
+                <span class="inventory-count" id="inventoryCount">0/16</span>
+            </div>
+            <div class="inventory-grid" id="inventoryGrid">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 解谜游戏 -->
+        <div class="puzzle-panel" id="puzzlePanel" style="display: none;">
+            <h3 class="puzzle-title">🔐 密码锁</h3>
+            <p class="puzzle-hint">
+                提示：老爷的生日是1963年5月15日，他最喜欢的数字是他的年龄...
+            </p>
+            <div class="puzzle-input">
+                <input type="text" maxlength="1" id="digit1">
+                <input type="text" maxlength="1" id="digit2">
+                <input type="text" maxlength="1" id="digit3">
+                <input type="text" maxlength="1" id="digit4">
+            </div>
+            <button class="puzzle-btn" onclick="checkPuzzle()">确认密码</button>
+        </div>
+        
+        <!-- 地图导览 -->
+        <div class="map-panel">
+            <div class="map-header">
+                <span>🗺️</span>
+                <span>山庄地图</span>
+            </div>
+            <div class="map-container" id="mapContainer">
+                <div class="map-point current" style="left: 20%; top: 30%;" data-location="gate" onclick="goToLocation('gate')">
+                    🚪
+                </div>
+                <div class="map-point" style="left: 50%; top: 20%;" data-location="hall" onclick="goToLocation('hall')">
+                    🏠
+                </div>
+                <div class="map-point" style="left: 75%; top: 35%;" data-location="library" onclick="goToLocation('library')">
+                    📚
+                </div>
+                <div class="map-point" style="left: 30%; top: 60%;" data-location="garden" onclick="goToLocation('garden')">
+                    🌳
+                </div>
+                <div class="map-point" style="left: 65%; top: 65%;" data-location="bedroom" onclick="goToLocation('bedroom')">
+                    🛏️
+                </div>
+            </div>
+            <div class="map-legend">
+                <div class="legend-item">
+                    <div class="legend-dot visited"></div>
+                    <span>已探索</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot current"></div>
+                    <span>当前位置</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot unvisited"></div>
+                    <span>未探索</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部导航 -->
+        <div class="game-nav">
+            <button class="nav-btn active" onclick="switchTab('scene')">
+                <span class="icon">🎭</span>
+                <span>场景</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('quest')">
+                <span class="icon">📋</span>
+                <span>任务</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('inventory')">
+                <span class="icon">🎒</span>
+                <span>背包</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('map')">
+                <span class="icon">🗺️</span>
+                <span>地图</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 结算界面 -->
+    <div class="settlement-screen" id="settlementScreen">
+        <div class="settlement-badge">🏆</div>
+        <h2 class="settlement-title">案件告破！</h2>
+        <p class="settlement-subtitle">恭喜您成功侦破迷雾山庄命案</p>
+        <div class="settlement-stats">
+            <div class="stat-card">
+                <div class="stat-value" id="statTime">2:45:30</div>
+                <div class="stat-label">游戏时长</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statClues">12</div>
+                <div class="stat-label">收集线索</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statPuzzles">3</div>
+                <div class="stat-label">解开谜题</div>
+            </div>
+        </div>
+        <div class="settlement-rewards">
+            <div class="rewards-title">🎁 获得奖励</div>
+            <div class="rewards-list">
+                <div class="reward-item">
+                    <span class="reward-icon">⭐</span>
+                    <span class="reward-value">+500 积分</span>
+                </div>
+                <div class="reward-item">
+                    <span class="reward-icon">🏅</span>
+                    <span class="reward-value">神探徽章</span>
+                </div>
+                <div class="reward-item">
+                    <span class="reward-icon">🎫</span>
+                    <span class="reward-value">9折优惠券</span>
+                </div>
+            </div>
+        </div>
+        <button class="settlement-btn" onclick="showRating()">立即评价</button>
+        <button class="settlement-btn outline" onclick="backToHome()">返回首页</button>
+    </div>
+    
+    <!-- 评价弹窗 -->
+    <div class="rating-modal" id="ratingModal">
+        <div class="rating-card">
+            <h3 class="rating-title">为本次体验打分</h3>
+            <div class="rating-stars" id="ratingStars">
+                <span class="rating-star" data-rating="1">★</span>
+                <span class="rating-star" data-rating="2">★</span>
+                <span class="rating-star" data-rating="3">★</span>
+                <span class="rating-star" data-rating="4">★</span>
+                <span class="rating-star" data-rating="5">★</span>
+            </div>
+            <textarea class="rating-input" placeholder="说说您的体验感受..."></textarea>
+            <button class="rating-btn" onclick="submitRating()">提交评价</button>
+        </div>
+    </div>
+    
+    <!-- 物品详情弹窗 -->
+    <div class="item-modal" id="itemModal">
+        <div class="item-detail">
+            <div class="item-detail-icon" id="itemIcon">🔑</div>
+            <h4 class="item-detail-name" id="itemName">古铜钥匙</h4>
+            <p class="item-detail-desc" id="itemDesc">
+                一把古老的铜钥匙，上面刻有"书房"二字。似乎可以打开书房的门。
+            </p>
+            <button class="item-detail-close" onclick="closeItemModal()">关闭</button>
+        </div>
+    </div>
+    
+    <!-- 提示消息 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 游戏状态
+        const gameState = {
+            currentScene: 'gate',
+            progress: 0,
+            inventory: [],
+            completedQuests: [],
+            visitedLocations: ['gate'],
+            dialogHistory: [],
+            puzzlesSolved: 0,
+            cluesFound: 0,
+            startTime: null,
+            totalPlayTime: 0
+        };
+        
+        // 场景数据
+        const scenes = {
+            gate: {
+                emoji: '🚪',
+                title: '山庄大门',
+                desc: '夜幕降临，迷雾笼罩着这座神秘的山庄。古老的铁门在风中微微作响，门上挂着一块斑驳的牌匾，依稀可见"云雾山庄"四个字。',
+                atmosphere: '💨 风声呼啸，远处传来乌鸦的叫声...',
+                npc: { name: '张管家', emoji: '👴', role: '山庄管家 · 服务40年' }
+            },
+            hall: {
+                emoji: '🏠',
+                title: '大厅',
+                desc: '宽敞的大厅里摆放着古老的家具，墙上挂着历代主人的画像。壁炉里的火光忽明忽暗，照亮了角落里一个被遗弃的信封。',
+                atmosphere: '🔥 壁炉中的火焰噼啪作响，空气中弥漫着陈旧的书香...',
+                npc: { name: '李医生', emoji: '👨‍⚕️', role: '私人医生 · 老爷的朋友' }
+            },
+            library: {
+                emoji: '📚',
+                title: '书房',
+                desc: '书房里堆满了古籍和文献。书桌上散落着一些文件，角落里有一个上锁的保险箱，上面有一个四位数的密码锁。',
+                atmosphere: '📖 书页翻动的声音似乎从某个角落传来...',
+                npc: { name: '王律师', emoji: '👨‍⚖️', role: '家庭律师 · 负责遗嘱' }
+            },
+            garden: {
+                emoji: '🌳',
+                title: '后花园',
+                desc: '月光洒在荒芜的花园里，枯萎的玫瑰丛中似乎隐藏着什么。一口古井静静矗立在花园中央，井边的泥土有翻动的痕迹。',
+                atmosphere: '🌙 夜虫鸣叫，月光在井水面上投下诡异的倒影...',
+                npc: { name: '赵园丁', emoji: '👨‍🌾', role: '园丁 · 在山庄工作20年' }
+            },
+            bedroom: {
+                emoji: '🛏️',
+                title: '主卧室',
+                desc: '奢华的主卧室里，一张大床占据中央。床头柜上放着一本日记，书桌抽屉半开着，里面似乎藏着什么。',
+                atmosphere: '💔 空气中弥漫着悲伤的气息，床头的遗像正注视着房间...',
+                npc: { name: '刘夫人', emoji: '👩', role: '老爷夫人 · 继承人之一' }
+            }
+        };
+        
+        // NPC对话数据
+        const dialogTree = {
+            gate: {
+                1: {
+                    response: '那天晚上...我记得很清楚。老爷在书房会见了律师，讨论遗嘱的事情。大约晚上9点，我听到书房传来争吵声，但当我赶到时，门是锁着的...',
+                    followUp: [
+                        { text: '争吵的是谁？', next: '1a' },
+                        { text: '门是怎么打开的？', next: '1b' },
+                        { text: '然后发生了什么？', next: '1c' }
+                    ]
+                },
+                2: {
+                    response: '山庄里有几个人都很可疑...李医生最近和老爷争执过，王律师修改了遗嘱，刘夫人欠了一笔赌债，还有赵园丁，他最近行为很反常...',
+                    followUp: [
+                        { text: '告诉我更多关于李医生的事', next: '2a' },
+                        { text: '王律师为什么要改遗嘱？', next: '2b' },
+                        { text: '刘夫人欠谁的赌债？', next: '2c' }
+                    ]
+                },
+                3: {
+                    response: '当然可以。不过请小心，这座山庄...似乎隐藏着不为人知的秘密。大门钥匙给您，可以去任何开放的房间。',
+                    reward: { icon: '🔑', name: '大门钥匙', desc: '可以进入山庄的所有开放区域。' },
+                    followUp: null
+                }
+            }
+        };
+        
+        // 任务数据
+        const quests = [
+            { id: 1, text: '与管家对话，了解山庄情况', location: 'gate' },
+            { id: 2, text: '调查客厅的神秘信件', location: 'hall' },
+            { id: 3, text: '解开书房的密码锁', location: 'library' },
+            { id: 4, text: '找出真正的凶手', location: 'all' }
+        ];
+        
+        // 物品数据
+        const items = [
+            { id: 1, icon: '🔑', name: '古铜钥匙', desc: '一把古老的铜钥匙，上面刻有"书房"二字。' },
+            { id: 2, icon: '✉️', name: '神秘信件', desc: '一封未寄出的信，内容提到了一桩保险索赔。' },
+            { id: 3, icon: '📖', name: '老爷日记', desc: '记录了老爷最后几周的心事，提到了对某人的怀疑。' },
+            { id: 4, icon: '💊', name: '药瓶', desc: '一个标有"安眠药"的瓶子，但里面的药片颜色不对。' },
+            { id: 5, icon: '🔫', name: '旧手枪', desc: '一把老式手枪，枪管有使用痕迹，但最近没有发射过。' },
+            { id: 6, icon: '📄', name: '遗嘱副本', desc: '遗嘱的复印件，显示财产分配有重大变化。' },
+            { id: 7, icon: '📷', name: '照片', desc: '一张偷拍的照片，拍到了某人的秘密会面。' },
+            { id: 8, icon: '💍', name: '戒指', desc: '一枚刻有特殊符号的戒指，似乎有什么含义。' }
+        ];
+        
+        // 初始化背包网格
+        function initInventoryGrid() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 16; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'inventory-slot';
+                slot.dataset.slot = i;
+                slot.onclick = () => showSlotItem(i);
+                
+                if (gameState.inventory[i]) {
+                    const item = items.find(item => item.id === gameState.inventory[i]);
+                    slot.classList.add('has-item');
+                    slot.innerHTML = `
+                        <span class="item-icon">${item.icon}</span>
+                        <span class="item-name">${item.name}</span>
+                    `;
+                }
+                grid.appendChild(slot);
+            }
+            document.getElementById('inventoryCount').textContent = `${gameState.inventory.length}/16`;
+        }
+        
+        // 添加物品到背包
+        function addItem(itemId) {
+            if (gameState.inventory.length < 16) {
+                gameState.inventory.push(itemId);
+                initInventoryGrid();
+                showToast('🎒 获得新物品！');
+            }
+        }
+        
+        // 显示物品详情
+        function showSlotItem(slotIndex) {
+            if (gameState.inventory[slotIndex]) {
+                const item = items.find(i => i.id === gameState.inventory[slotIndex]);
+                document.getElementById('itemIcon').textContent = item.icon;
+                document.getElementById('itemName').textContent = item.name;
+                document.getElementById('itemDesc').textContent = item.desc;
+                document.getElementById('itemModal').classList.add('active');
+            }
+        }
+        
+        // 关闭物品详情
+        function closeItemModal() {
+            document.getElementById('itemModal').classList.remove('active');
+        }
+        
+        // 开始游戏
+        function startGame() {
+            gameState.startTime = Date.now();
+            document.getElementById('coverScreen').classList.add('hidden');
+            document.getElementById('gameContainer').classList.add('active');
+            initInventoryGrid();
+            updateProgress(5);
+        }
+        
+        // 显示封面
+        function showCover() {
+            document.getElementById('coverScreen').classList.remove('hidden');
+            document.getElementById('gameContainer').classList.remove('active');
+        }
+        
+        // 更新进度
+        function updateProgress(value) {
+            gameState.progress = value;
+            const circle = document.getElementById('progressCircle');
+            const text = document.getElementById('progressText');
+            const offset = 100 - value;
+            circle.setAttribute('stroke-dashoffset', offset);
+            text.textContent = value + '%';
+        }
+        
+        // 切换底部导航标签
+        function switchTab(tab) {
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.nav-btn').classList.add('active');
+            
+            // 滚动到对应区域
+            const panels = {
+                scene: '.scene-area',
+                quest: '.quest-panel',
+                inventory: '.inventory-panel',
+                map: '.map-panel'
+            };
+            const target = document.querySelector(panels[tab]);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        
+        // 选择对话选项
+        function selectDialog(optionId) {
+            const dialog = dialogTree[gameState.currentScene]?.[optionId];
+            if (!dialog) return;
+            
+            const messagesContainer = document.getElementById('npcMessages');
+            const optionsContainer = document.getElementById('dialogOptions');
+            
+            // 添加玩家消息
+            const playerMsg = document.createElement('div');
+            playerMsg.className = 'message player';
+            playerMsg.textContent = event.target.textContent;
+            messagesContainer.appendChild(playerMsg);
+            
+            // 添加NPC回复
+            setTimeout(() => {
+                const npcMsg = document.createElement('div');
+                npcMsg.className = 'message npc';
+                npcMsg.textContent = dialog.response;
+                messagesContainer.appendChild(npcMsg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // 奖励物品
+                if (dialog.reward) {
+                    addItem(items.find(i => i.icon === dialog.reward.icon)?.id || 1);
+                }
+                
+                // 显示后续对话选项
+                if (dialog.followUp) {
+                    optionsContainer.innerHTML = dialog.followUp.map((option, idx) => `
+                        <button class="dialog-option" onclick="selectDialog('${option.next}')">${option.text}</button>
+                    `).join('');
+                } else {
+                    optionsContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 10px;">对话结束</p>';
+                }
+                
+                // 更新任务进度
+                if (!gameState.completedQuests.includes(1)) {
+                    completeQuest(1);
+                }
+                
+                updateProgress(gameState.progress + 10);
+            }, 500);
+        }
+        
+        // 完成任务
+        function completeQuest(questId) {
+            gameState.completedQuests.push(questId);
+            const questItem = document.querySelector(`.quest-item[data-quest="${questId}"]`);
+            if (questItem) {
+                questItem.classList.remove('active');
+                questItem.classList.add('completed');
+            }
+            
+            // 激活下一个任务
+            const nextQuest = document.querySelector(`.quest-item[data-quest="${questId + 1}"]`);
+            if (nextQuest) {
+                nextQuest.classList.add('active');
+            }
+            
+            showToast('✅ 任务完成！');
+            gameState.cluesFound++;
+        }
+        
+        // 前往地点
+        function goToLocation(location) {
+            const scene = scenes[location];
+            if (!scene) return;
+            
+            gameState.currentScene = location;
+            
+            // 更新地图标记
+            document.querySelectorAll('.map-point').forEach(point => {
+                point.classList.remove('current');
+                if (point.dataset.location === location) {
+                    point.classList.add('current');
+                    if (!gameState.visitedLocations.includes(location)) {
+                        gameState.visitedLocations.push(location);
+                        point.classList.add('visited');
+                    }
+                }
+            });
+            
+            // 更新场景
+            document.getElementById('sceneImage').textContent = scene.emoji;
+            document.getElementById('sceneTitle').textContent = scene.title;
+            document.getElementById('sceneDesc').textContent = scene.desc;
+            document.getElementById('sceneAtmosphere').textContent = scene.atmosphere;
+            
+            // 更新NPC
+            document.getElementById('npcName').textContent = scene.npc.name;
+            document.querySelector('.npc-avatar').textContent = scene.npc.emoji;
+            document.querySelector('.npc-info span').textContent = scene.npc.role;
+            
+            // 重置对话
+            document.getElementById('npcMessages').innerHTML = `
+                <div class="message npc">欢迎来到${scene.title}。有什么我可以帮助您的吗？</div>
+            `;
+            
+            // 显示特殊内容
+            if (location === 'library') {
+                document.getElementById('puzzlePanel').style.display = 'block';
+            } else {
+                document.getElementById('puzzlePanel').style.display = 'none';
+            }
+            
+            updateProgress(gameState.progress + 5);
+            showToast(`📍 已到达: ${scene.title}`);
+        }
+        
+        // 检查谜题答案
+        function checkPuzzle() {
+            const digits = [
+                document.getElementById('digit1').value,
+                document.getElementById('digit2').value,
+                document.getElementById('digit3').value,
+                document.getElementById('digit4').value
+            ].join('');
+            
+            // 答案是1963（老爷出生年份）
+            if (digits === '1963') {
+                showToast('🎉 密码正确！保险箱已打开！');
+                addItem(6); // 遗嘱副本
+                gameState.puzzlesSolved++;
+                completeQuest(3);
+                updateProgress(gameState.progress + 15);
+            } else {
+                showToast('❌ 密码错误，请再试一次');
+            }
+        }
+        
+        // 显示结算界面
+        function showSettlement() {
+            // 计算游戏时间
+            const playTime = Date.now() - gameState.startTime;
+            const hours = Math.floor(playTime / 3600000);
+            const minutes = Math.floor((playTime % 3600000) / 60000);
+            const seconds = Math.floor((playTime % 60000) / 1000);
+            
+            document.getElementById('statTime').textContent = 
+                `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('statClues').textContent = gameState.cluesFound;
+            document.getElementById('statPuzzles').textContent = gameState.puzzlesSolved;
+            
+            document.getElementById('settlementScreen').classList.add('active');
+        }
+        
+        // 显示评价弹窗
+        function showRating() {
+            document.getElementById('ratingModal').classList.add('active');
+        }
+        
+        // 提交评价
+        function submitRating() {
+            const rating = document.querySelectorAll('.rating-star.active').length;
+            const comment = document.querySelector('.rating-input').value;
+            
+            // 保存评价
+            const ratings = JSON.parse(localStorage.getItem('zaomeng_ratings') || '[]');
+            ratings.push({
+                scriptId: 'mist-mountain',
+                rating: rating,
+                comment: comment,
+                time: new Date().toISOString()
+            });
+            localStorage.setItem('zaomeng_ratings', JSON.stringify(ratings));
+            
+            showToast('✅ 评价已提交，感谢您的反馈！');
+            document.getElementById('ratingModal').classList.remove('active');
+        }
+        
+        // 返回首页
+        function backToHome() {
+            window.location.href = 'index.html';
+        }
+        
+        // 显示提示消息
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        // 初始化评价星星
+        document.querySelectorAll('.rating-star').forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.dataset.rating);
+                document.querySelectorAll('.rating-star').forEach((s, idx) => {
+                    s.classList.toggle('active', idx < rating);
+                });
+            });
+        });
+        
+        // 密码输入自动跳转
+        document.querySelectorAll('.puzzle-input input').forEach((input, idx, inputs) => {
+            input.addEventListener('input', function() {
+                if (this.value && idx < inputs.length - 1) {
+                    inputs[idx + 1].focus();
+                }
+            });
+        });
+        
+        // 演示：游戏完成后显示结算
+        // 实际游戏中应该在破案后触发
+        // setTimeout(showSettlement, 60000); // 1分钟后显示结算（演示用）
+    </script>
+</body>
+</html>

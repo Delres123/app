@@ -479,6 +479,121 @@
 
                 <button class="btn-primary" id="apply-creator-btn">申请成为创作者</button>
             </div>
+
+            <!-- 创作者申请页 -->
+            <div id="creator-apply-page" class="page">
+                <div id="creator-apply-form">
+                    <!-- 动态生成的申请表单 -->
+                </div>
+            </div>
+
+            <!-- 搜索页 -->
+            <div id="search-page" class="page">
+                <div class="search-header">
+                    <button class="back-btn" onclick="navigateTo('home')">←</button>
+                    <div class="search-input-wrapper">
+                        <input type="text" id="search-input" placeholder="搜索剧本、景区、创作者..." autofocus>
+                        <button class="search-clear" id="search-clear">✕</button>
+                    </div>
+                    <button class="search-submit" id="search-submit">搜索</button>
+                </div>
+                
+                <div class="search-content">
+                    <!-- 搜索历史 -->
+                    <div class="search-history" id="search-history">
+                        <div class="history-header">
+                            <h3>搜索历史</h3>
+                            <button class="clear-history" id="clear-history">清空</button>
+                        </div>
+                        <div class="history-tags" id="history-tags">
+                            <span class="history-tag">迷雾山庄</span>
+                            <span class="history-tag">黄山</span>
+                            <span class="history-tag">悬疑</span>
+                            <span class="history-tag">恐怖</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 热门搜索 -->
+                    <div class="hot-search">
+                        <h3>🔥 热门搜索</h3>
+                        <div class="hot-tags">
+                            <span class="hot-tag" data-type="script" data-id="1">🎭 迷雾山庄</span>
+                            <span class="hot-tag" data-type="script" data-id="3">⛰️ 仙人指路</span>
+                            <span class="hot-tag" data-type="type">🔍 悬疑推理</span>
+                            <span class="hot-tag" data-type="scenic">🏔️ 黄山景区</span>
+                            <span class="hot-tag" data-type="type">💕 情侣剧本</span>
+                            <span class="hot-tag" data-type="type">⚔️ 武侠江湖</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 搜索结果 -->
+                    <div class="search-results" id="search-results" style="display:none;">
+                        <div class="results-tabs">
+                            <span class="results-tab active" data-tab="all">全部</span>
+                            <span class="results-tab" data-tab="scripts">剧本</span>
+                            <span class="results-tab" data-tab="scenic">景区</span>
+                            <span class="results-tab" data-tab="creators">创作者</span>
+                        </div>
+                        <div class="results-list" id="results-list">
+                            <!-- 动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 附近/地图页 -->
+            <div id="nearby-page" class="page">
+                <div class="nearby-header">
+                    <button class="back-btn" onclick="navigateTo('home')">←</button>
+                    <h1>📍 附近剧本</h1>
+                    <button class="icon-btn" id="refresh-location">🔄</button>
+                </div>
+                
+                <div class="nearby-content">
+                    <!-- 用户位置卡片 -->
+                    <div class="location-card" id="location-card">
+                        <div class="location-icon">📍</div>
+                        <div class="location-info">
+                            <span class="location-label">当前位置</span>
+                            <span class="location-address" id="location-address">正在定位中...</span>
+                        </div>
+                        <button class="location-btn" id="relocate-btn">重新定位</button>
+                    </div>
+                    
+                    <!-- 距离筛选 -->
+                    <div class="distance-filter">
+                        <span class="distance-option active" data-distance="5">5km内</span>
+                        <span class="distance-option" data-distance="10">10km内</span>
+                        <span class="distance-option" data-distance="50">50km内</span>
+                        <span class="distance-option" data-distance="100">全国</span>
+                    </div>
+                    
+                    <!-- 地图区域（简化版） -->
+                    <div class="map-container" id="map-container">
+                        <div class="map-placeholder">
+                            <div class="map-grid">
+                                <!-- 用户位置标记 -->
+                                <div class="user-marker" id="user-marker">
+                                    <span class="marker-icon">📍</span>
+                                    <span class="marker-label">我的位置</span>
+                                </div>
+                                <!-- 剧本标记点（动态生成） -->
+                                <div class="script-markers" id="script-markers">
+                                    <!-- 动态加载 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 附近剧本列表 -->
+                    <div class="nearby-section">
+                        <h3>🎯 附近剧本</h3>
+                        <div class="nearby-list" id="nearby-list">
+                            <!-- 动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- 底部导航栏 -->

@@ -1,10 +1,11 @@
 /**
  * 造梦空间 APP - 主逻辑
- * 功能：登录注册、页面导航、数据管理
+ * 功能：登录注册、页面导航、数据管理、创作者申请
  */
 
 // ========== 数据存储 ==========
 const DB_KEY = 'zaomeng_app_data';
+const CREATOR_DB_KEY = 'zaomeng_creators_db'; // 创作者数据库
 
 // 默认剧本数据
 const SCRIPTS_DATA = [
@@ -112,6 +113,8 @@ const defaultUserData = {
     phone: '',
     nickname: '',
     avatar: '👤',
+    isCreator: false,
+    creatorId: null,
     stats: {
         experiences: 0,
         favorites: 0,
@@ -126,7 +129,7 @@ const defaultUserData = {
     ]
 };
 
-// ========== 工具函数 ==========
+// ========== 数据库操作 ==========
 
 // 获取存储数据
 function getStorageData() {
@@ -142,6 +145,109 @@ function getStorageData() {
 function saveStorageData(data) {
     localStorage.setItem(DB_KEY, JSON.stringify(data));
 }
+
+// 获取创作者数据库
+function getCreatorDB() {
+    try {
+        const data = localStorage.getItem(CREATOR_DB_KEY);
+        return data ? JSON.parse(data) : { creators: [], applications: [] };
+    } catch (e) {
+        return { creators: [], applications: [] };
+    }
+}
+
+// 保存创作者数据库
+function saveCreatorDB(data) {
+    localStorage.setItem(CREATOR_DB_KEY, JSON.stringify(data));
+}
+
+// 提交创作者申请
+function submitCreatorApplication(formData) {
+    const creatorDB = getCreatorDB();
+    const userData = getStorageData();
+    
+    const application = {
+        id: 'app_' + Date.now(),
+        userId: userData.phone,
+        ...formData,
+        status: 'pending', // pending, approved, rejected
+        submittedAt: new Date().toISOString(),
+        reviewedAt: null,
+        reviewerNote: ''
+    };
+    
+    creatorDB.applications.push(application);
+    saveCreatorDB(creatorDB);
+    
+    return application;
+}
+
+// 获取用户的创作者申请状态
+function getCreatorApplicationStatus() {
+    const userData = getStorageData();
+    const creatorDB = getCreatorDB();
+    
+    // 查找该用户的申请
+    const application = creatorDB.applications
+        .filter(app => app.userId === userData.phone)
+        .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))[0];
+    
+    return application || null;
+}
+
+// 获取所有创作者申请（管理用）
+function getAllCreatorApplications() {
+    const creatorDB = getCreatorDB();
+    return creatorDB.applications.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+}
+
+// 审核创作者申请
+function reviewCreatorApplication(appId, status, note = '') {
+    const creatorDB = getCreatorDB();
+    const app = creatorDB.applications.find(a => a.id === appId);
+    
+    if (app) {
+        app.status = status;
+        app.reviewedAt = new Date().toISOString();
+        app.reviewerNote = note;
+        
+        // 如果批准，添加到创作者列表
+        if (status === 'approved') {
+            const creator = {
+                id: 'creator_' + Date.now(),
+                userId: app.userId,
+                name: app.name,
+                penName: app.penName,
+                specialty: app.specialty,
+                experience: app.experience,
+                portfolio: app.portfolio,
+                bio: app.bio,
+                createdAt: new Date().toISOString(),
+                stats: {
+                    scripts: 0,
+                    totalPlays: 0,
+                    totalRevenue: 0,
+                    followers: 0
+                }
+            };
+            creatorDB.creators.push(creator);
+            
+            // 更新用户状态
+            const userData = getStorageData();
+            if (userData.phone === app.userId) {
+                userData.isCreator = true;
+                userData.creatorId = creator.id;
+                saveStorageData(userData);
+            }
+        }
+        
+        saveCreatorDB(creatorDB);
+        return true;
+    }
+    return false;
+}
+
+// ========== 工具函数 ==========
 
 // 显示Toast提示
 function showToast(message, duration = 2000) {
@@ -211,6 +317,10 @@ function navigateTo(pageName, data = null) {
             renderScriptDetail(data);
         } else if (pageName === 'profile') {
             updateProfilePage();
+        } else if (pageName === 'creator') {
+            updateCreatorPage();
+        } else if (pageName === 'creator-apply') {
+            initCreatorApplyForm();
         }
     }
 }
@@ -292,6 +402,8 @@ function handleLogin(e) {
         data.phone = user.phone;
         data.nickname = user.nickname;
         data.avatar = user.avatar || '👤';
+        data.isCreator = user.isCreator || false;
+        data.creatorId = user.creatorId || null;
         saveStorageData(data);
 
         hideLoading();
@@ -364,6 +476,8 @@ function handleRegister(e) {
             password,
             nickname,
             avatar: '👤',
+            isCreator: false,
+            creatorId: null,
             createdAt: new Date().toISOString()
         });
 
@@ -372,6 +486,8 @@ function handleRegister(e) {
         data.phone = phone;
         data.nickname = nickname;
         data.avatar = '👤';
+        data.isCreator = false;
+        data.creatorId = null;
         data.stats = { experiences: 0, favorites: 0, points: 100 };
 
         saveStorageData(data);
@@ -487,6 +603,336 @@ function updateProfilePage() {
     }
 }
 
+// ========== 创作者系统 ==========
+
+// 更新创作者页面
+function updateCreatorPage() {
+    const data = getStorageData();
+    const appStatus = getCreatorApplicationStatus();
+    
+    const welcomeEl = document.querySelector('.creator-welcome');
+    const benefitsEl = document.querySelector('.creator-benefits');
+    const applyBtn = document.getElementById('apply-creator-btn');
+    
+    // 如果已经是创作者
+    if (data.isCreator) {
+        if (welcomeEl) {
+            welcomeEl.innerHTML = `
+                <h2>✨ 创作者中心</h2>
+                <p>欢迎回来，${data.nickname}！释放你的创意，打造独特的沉浸式剧本</p>
+            `;
+        }
+        if (benefitsEl) {
+            benefitsEl.innerHTML = `
+                <div class="creator-dashboard">
+                    <div class="dashboard-card">
+                        <h3>📊 数据概览</h3>
+                        <div class="dashboard-stats">
+                            <div class="ds-item"><span class="ds-num">0</span><span class="ds-label">剧本数</span></div>
+                            <div class="ds-item"><span class="ds-num">0</span><span class="ds-label">总游玩</span></div>
+                            <div class="ds-item"><span class="ds-num">¥0</span><span class="ds-label">总收益</span></div>
+                            <div class="ds-item"><span class="ds-num">0</span><span class="ds-label">粉丝数</span></div>
+                        </div>
+                    </div>
+                    <div class="dashboard-actions">
+                        <button class="action-btn" onclick="showToast('功能开发中')">
+                            <span class="action-icon">📝</span>
+                            <span>创建剧本</span>
+                        </button>
+                        <button class="action-btn" onclick="showToast('功能开发中')">
+                            <span class="action-icon">📊</span>
+                            <span>数据分析</span>
+                        </button>
+                        <button class="action-btn" onclick="showToast('功能开发中')">
+                            <span class="action-icon">💰</span>
+                            <span>收益提现</span>
+                        </button>
+                        <button class="action-btn" onclick="showCreatorApplications()">
+                            <span class="action-icon">📋</span>
+                            <span>申请记录</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        if (applyBtn) applyBtn.style.display = 'none';
+        return;
+    }
+    
+    // 如果有待审核的申请
+    if (appStatus && appStatus.status === 'pending') {
+        if (welcomeEl) {
+            welcomeEl.innerHTML = `
+                <h2>⏳ 申请审核中</h2>
+                <p>您的创作者申请已提交，我们将在1-3个工作日内完成审核</p>
+            `;
+        }
+        if (benefitsEl) {
+            benefitsEl.innerHTML = `
+                <div class="application-status">
+                    <div class="status-card pending">
+                        <div class="status-icon">⏳</div>
+                        <h3>审核中</h3>
+                        <p>提交时间：${new Date(appStatus.submittedAt).toLocaleString('zh-CN')}</p>
+                        <div class="app-info">
+                            <p><strong>笔名：</strong>${appStatus.penName}</p>
+                            <p><strong>专长：</strong>${appStatus.specialty}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (applyBtn) applyBtn.style.display = 'none';
+        return;
+    }
+    
+    // 如果申请被拒绝
+    if (appStatus && appStatus.status === 'rejected') {
+        if (welcomeEl) {
+            welcomeEl.innerHTML = `
+                <h2>❌ 申请未通过</h2>
+                <p>很抱歉，您的创作者申请未能通过审核</p>
+            `;
+        }
+        if (benefitsEl) {
+            benefitsEl.innerHTML = `
+                <div class="application-status">
+                    <div class="status-card rejected">
+                        <div class="status-icon">❌</div>
+                        <h3>未通过</h3>
+                        <p>审核时间：${new Date(appStatus.reviewedAt).toLocaleString('zh-CN')}</p>
+                        ${appStatus.reviewerNote ? `<p class="note"><strong>原因：</strong>${appStatus.reviewerNote}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        if (applyBtn) {
+            applyBtn.style.display = 'block';
+            applyBtn.textContent = '重新申请';
+        }
+        return;
+    }
+    
+    // 默认状态：未申请
+    if (welcomeEl) {
+        welcomeEl.innerHTML = `
+            <h2>✨ 成为创作者</h2>
+            <p>释放你的创意，打造独特的沉浸式剧本，让全国玩家体验你的作品</p>
+        `;
+    }
+    if (applyBtn) {
+        applyBtn.style.display = 'block';
+        applyBtn.textContent = '申请成为创作者';
+    }
+}
+
+// 初始化创作者申请表单
+function initCreatorApplyForm() {
+    const container = document.getElementById('creator-apply-form');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="apply-form-container">
+            <div class="form-header">
+                <button class="back-btn" onclick="navigateTo('creator')">←</button>
+                <h2>创作者申请</h2>
+            </div>
+            
+            <form id="creator-application-form" class="apply-form">
+                <div class="form-section">
+                    <h3>基本信息</h3>
+                    
+                    <div class="form-group">
+                        <label for="apply-name">真实姓名 <span class="required">*</span></label>
+                        <input type="text" id="apply-name" name="name" placeholder="请输入真实姓名" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="apply-penName">创作者笔名 <span class="required">*</span></label>
+                        <input type="text" id="apply-penName" name="penName" placeholder="展示给用户的昵称" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="apply-idCard">身份证号 <span class="required">*</span></label>
+                        <input type="text" id="apply-idCard" name="idCard" placeholder="用于实名认证" required>
+                        <span class="form-hint">信息仅用于实名认证，不会公开</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="apply-email">电子邮箱 <span class="required">*</span></label>
+                        <input type="email" id="apply-email" name="email" placeholder="用于接收重要通知" required>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>创作能力</h3>
+                    
+                    <div class="form-group">
+                        <label for="apply-specialty">擅长类型 <span class="required">*</span></label>
+                        <select id="apply-specialty" name="specialty" required>
+                            <option value="">请选择</option>
+                            <option value="悬疑推理">悬疑推理</option>
+                            <option value="恐怖惊悚">恐怖惊悚</option>
+                            <option value="仙侠玄幻">仙侠玄幻</option>
+                            <option value="古风武侠">古风武侠</option>
+                            <option value="爱情情感">爱情情感</option>
+                            <option value="科幻未来">科幻未来</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="apply-experience">创作经历 <span class="required">*</span></label>
+                        <textarea id="apply-experience" name="experience" rows="4" 
+                            placeholder="请描述您的剧本创作经历，如：创作过哪些作品、在哪些平台发布过、获得过什么成绩等" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="apply-portfolio">作品链接</label>
+                        <textarea id="apply-portfolio" name="portfolio" rows="3" 
+                            placeholder="如有已发布作品，请提供链接（每行一个）"></textarea>
+                        <span class="form-hint">可选，有助于审核通过</span>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>个人介绍</h3>
+                    
+                    <div class="form-group">
+                        <label for="apply-bio">创作者简介 <span class="required">*</span></label>
+                        <textarea id="apply-bio" name="bio" rows="5" 
+                            placeholder="介绍一下自己，让玩家更了解你（将展示在创作者主页）" required></textarea>
+                        <span class="form-hint">100-500字</span>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>合作意向</h3>
+                    
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agree-creator-terms" required>
+                            <span>我已阅读并同意<a href="#" onclick="showCreatorTerms()">《创作者协议》</a></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agree-revenue">
+                            <span>我了解收益分成规则：创作者可获得剧本收益的70%</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="navigateTo('creator')">取消</button>
+                    <button type="submit" class="btn-primary">提交申请</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    // 绑定表单提交
+    document.getElementById('creator-application-form').addEventListener('submit', handleCreatorApplication);
+}
+
+// 处理创作者申请提交
+function handleCreatorApplication(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    // 验证
+    const name = formData.get('name').trim();
+    const penName = formData.get('penName').trim();
+    const idCard = formData.get('idCard').trim();
+    const email = formData.get('email').trim();
+    const specialty = formData.get('specialty');
+    const experience = formData.get('experience').trim();
+    const bio = formData.get('bio').trim();
+    
+    if (!name || !penName || !idCard || !email || !specialty || !experience || !bio) {
+        showToast('请填写所有必填项');
+        return;
+    }
+    
+    // 身份证验证
+    if (!/^\d{17}[\dXx]$/.test(idCard)) {
+        showToast('请输入正确的身份证号');
+        return;
+    }
+    
+    // 邮箱验证
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('请输入正确的邮箱地址');
+        return;
+    }
+    
+    // 简介长度
+    if (bio.length < 100 || bio.length > 500) {
+        showToast('简介需在100-500字之间');
+        return;
+    }
+    
+    // 协议确认
+    if (!document.getElementById('agree-creator-terms').checked) {
+        showToast('请同意创作者协议');
+        return;
+    }
+    
+    showLoading();
+    
+    setTimeout(() => {
+        const applicationData = {
+            name,
+            penName,
+            idCard,
+            email,
+            specialty,
+            experience,
+            portfolio: formData.get('portfolio').trim(),
+            bio
+        };
+        
+        const application = submitCreatorApplication(applicationData);
+        
+        hideLoading();
+        showToast('申请提交成功！');
+        
+        // 返回创作者页面
+        setTimeout(() => {
+            navigateTo('creator');
+        }, 1000);
+    }, 1500);
+}
+
+// 显示创作者协议
+function showCreatorTerms() {
+    showToast('创作者协议：1. 作品必须原创 2. 不得含有违法违规内容 3. 收益分成70%');
+}
+
+// 显示创作者申请记录
+function showCreatorApplications() {
+    const apps = getAllCreatorApplications();
+    const userApps = apps.filter(app => app.userId === getStorageData().phone);
+    
+    if (userApps.length === 0) {
+        showToast('暂无申请记录');
+        return;
+    }
+    
+    // 简单显示最近一条
+    const latest = userApps[0];
+    const statusText = {
+        'pending': '审核中',
+        'approved': '已通过',
+        'rejected': '未通过'
+    };
+    
+    showToast(`${statusText[latest.status]} - ${new Date(latest.submittedAt).toLocaleDateString('zh-CN')}`);
+}
+
 // ========== 剧本渲染 ==========
 
 // 渲染剧本网格
@@ -521,6 +967,16 @@ function openScriptDetail(scriptId) {
     const script = SCRIPTS_DATA.find(s => s.id === scriptId);
     if (script) {
         navigateTo('script-detail', script);
+    }
+}
+
+// 开始剧本游戏
+function startScriptGame(scriptId) {
+    // 目前只有迷雾山庄有完整游戏页面
+    if (scriptId === 1) {
+        window.location.href = 'game.html';
+    } else {
+        showToast('该剧本游戏正在开发中，敬请期待！');
     }
 }
 
@@ -564,6 +1020,11 @@ function renderScriptDetail(script) {
                 </div>
             </div>
             
+            <div class="detail-actions">
+                <button class="btn-game" onclick="startScriptGame(${script.id})">
+                    🎮 开始游戏
+                </button>
+            </div>
             <div class="detail-info-bar">
                 <div class="detail-price">
                     <span class="price-label">价格</span>
@@ -727,7 +1188,7 @@ function initEventListeners() {
 
     // 申请创作者
     document.getElementById('apply-creator-btn')?.addEventListener('click', () => {
-        showToast('申请已提交，请等待审核');
+        navigateTo('creator-apply');
     });
 }
 
