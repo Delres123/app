@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创作者工作室 - 造梦空间</title>
+    <link rel="stylesheet" href="app.css">
+    <style>
+        /* 创作者工作室专用样式 */
+        .studio-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding-bottom: 80px;
+        }
+        
+        /* 顶部导航 */
+        .studio-header {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .studio-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .studio-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .studio-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        /* 侧边导航 */
+        .studio-sidebar {
+            position: fixed;
+            left: 0;
+            top: 70px;
+            width: 80px;
+            height: calc(100vh - 70px - 70px);
+            background: rgba(0,0,0,0.3);
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .nav-item {
+            padding: 15px 10px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(102, 126, 234, 0.5);
+        }
+        
+        .nav-item .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        /* 主内容区 */
+        .studio-main {
+            margin-left: 80px;
+            padding: 20px;
+        }
+        
+        .view-content {
+            display: none;
+        }
+        
+        .view-content.active {
+            display: block;
+        }
+        
+        /* 仪表盘 */
+        .dashboard-header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        #creator-tier {
+            font-size: 16px;
+            color: #4facfe;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-icon {
+            font-size: 30px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        /* 快捷操作 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .quick-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quick-btn:hover {
+            background: rgba(102, 126, 234, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .quick-btn .btn-icon-large {
+            font-size: 40px;
+        }
+        
+        /* 剧本列表 */
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .scripts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .script-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .script-cover-mini {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .script-info-mini {
+            flex: 1;
+        }
+        
+        .script-info-mini h4 {
+            margin-bottom: 5px;
+        }
+        
+        .script-info-mini p {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .script-date {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .script-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn-small {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-btn-small:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* 状态徽章 */
+        .status-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+        
+        .status-badge.draft { background: #666; }
+        .status-badge.pending { background: #f39c12; }
+        .status-badge.approved { background: #27ae60; }
+        .status-badge.rejected { background: #e74c3c; }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        
+        .empty-icon {
+            font-size: 60px;
+            display: block;
+            margin-bottom: 20px;
+        }
+        
+        .empty-list-hint {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+        
+        /* 底部导航 */
+        .studio-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        /* 编辑器样式 */
+        .editor-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .editor-section h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #667eea;
+        }
+        
+        /* 场景卡片 */
+        .scene-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .scene-number {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .scene-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .scene-placeholder-icon {
+            font-size: 24px;
+        }
+        
+        .scene-details {
+            flex: 1;
+        }
+        
+        .scene-details h4 {
+            margin-bottom: 5px;
+        }
+        
+        .scene-details p {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .scene-meta {
+            font-size: 11px;
+            color: #666;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .scene-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        /* NPC卡片 */
+        .npc-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .npc-avatar-mini {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .npc-info-mini {
+            flex: 1;
+        }
+        
+        .npc-info-mini h4 {
+            margin-bottom: 5px;
+        }
+        
+        .npc-info-mini p {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .murderer-tag {
+            background: #e74c3c;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 5px;
+        }
+        
+        .npc-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        /* 按钮样式 */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 12px;
+        }
+        
+        .btn-icon {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-icon:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        /* 保证金弹窗 */
+        .deposit-amount {
+            font-size: 36px;
+            text-align: center;
+            color: #f39c12;
+            margin: 20px 0;
+        }
+        
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .payment-method:hover, .payment-method.selected {
+            border-color: #667eea;
+        }
+        
+        .payment-method input {
+            display: none;
+        }
+        
+        .payment-icon {
+            font-size: 30px;
+        }
+        
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        /* 分析和数据 */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .analytics-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .analytics-card h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .chart-placeholder {
+            height: 150px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+        }
+        
+        .revenue-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .revenue-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        
+        /* 设置页面 */
+        .settings-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .settings-section h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .tier-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .tier-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .tier-perks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .perk {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .deposit-status, .cert-status {
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .deposit-status p, .cert-status p {
+            margin-bottom: 10px;
+        }
+        
+        /* 标签输入 */
+        .tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            min-height: 50px;
+        }
+        
+        .tag-item {
+            background: #667eea;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .tag-remove {
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .tag-remove:hover {
+            opacity: 1;
+        }
+        
+        /* 封面选择 */
+        .cover-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .cover-option {
+            height: 50px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .cover-option:hover, .cover-option.selected {
+            border-color: #fff;
+            transform: scale(1.1);
+        }
+        
+        /* 对话列表 */
+        .dialogue-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .dialogue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .dialogue-num {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .input-sm, .textarea-sm {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .textarea-sm {
+            resize: none;
+        }
+        
+        .hint-text {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        /* 复选框样式 */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #667eea;
+        }
+        
+        /* 返回按钮 */
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* 通知徽章 */
+        .notification-badge {
+            display: none;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: #fff;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="studio-container">
+        <!-- 顶部导航 -->
+        <header class="studio-header">
+            <div class="studio-logo">✍️ 创作者工作室</div>
+            <div class="studio-user">
+                <span id="creator-name">创作者</span>
+                <div class="studio-avatar">🎭</div>
+            </div>
+        </header>
+        
+        <!-- 侧边导航 -->
+        <nav class="studio-sidebar">
+            <div class="nav-item active" data-view="dashboard">
+                <span class="nav-icon">📊</span>
+                <span>首页</span>
+            </div>
+            <div class="nav-item" data-view="scripts">
+                <span class="nav-icon">📚</span>
+                <span>剧本</span>
+            </div>
+            <div class="nav-item" data-view="create">
+                <span class="nav-icon">✏️</span>
+                <span>创作</span>
+            </div>
+            <div class="nav-item" data-view="analytics">
+                <span class="nav-icon">📈</span>
+                <span>数据</span>
+            </div>
+            <div class="nav-item" data-view="settings">
+                <span class="nav-icon">⚙️</span>
+                <span>设置</span>
+            </div>
+        </nav>
+        
+        <!-- 主内容区 -->
+        <main class="studio-main">
+            <!-- 仪表盘视图 -->
+            <div id="dashboard-view" class="view-content active">
+                <div class="dashboard-header">
+                    <h1>欢迎回来，<span id="creator-name-display">创作者</span></h1>
+                    <p id="creator-tier">基础创作者</p>
+                </div>
+                
+                <div class="stats-grid" id="creator-stats">
+                    <!-- 动态加载 -->
+                </div>
+                
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="switchView('create'); createNewScript();">
+                        <span class="btn-icon-large">📝</span>
+                        <span>新建剧本</span>
+                    </button>
+                    <button class="quick-btn" onclick="switchView('scripts')">
+                        <span class="btn-icon-large">📚</span>
+                        <span>管理剧本</span>
+                    </button>
+                </div>
+                
+                <h2 class="section-title">我的剧本</h2>
+                <div id="scripts-list" class="scripts-list">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+            
+            <!-- 剧本列表视图 -->
+            <div id="scripts-view" class="view-content">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2>我的剧本</h2>
+                    <button class="btn-primary" id="create-script-btn">+ 新建剧本</button>
+                </div>
+                
+                <div id="scripts-list-view" class="scripts-list">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+            
+            <!-- 剧本创建/编辑视图 -->
+            <div id="create-view" class="view-content">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <button class="back-btn" onclick="switchView('scripts')">←</button>
+                    <h2>剧本编辑器</h2>
+                    <div style="width:40px;"></div>
+                </div>
+                
+                <!-- 基础信息 -->
+                <div class="editor-section">
+                    <h3>📋 基础信息</h3>
+                    <form id="basic-info-form">
+                        <div class="form-group">
+                            <label>剧本名称 *</label>
+                            <input type="text" id="script-title" placeholder="给剧本起个吸引人的名字" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>剧本类型 *</label>
+                                <select id="script-type">
+                                    <option value="悬疑">悬疑推理</option>
+                                    <option value="恐怖">恐怖惊悚</option>
+                                    <option value="仙侠">仙侠玄幻</option>
+                                    <option value="武侠">古风武侠</option>
+                                    <option value="爱情">爱情情感</option>
+                                    <option value="科幻">科幻未来</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>难度等级 *</label>
+                                <select id="script-difficulty">
+                                    <option value="简单">简单</option>
+                                    <option value="中等" selected>中等</option>
+                                    <option value="较难">较难</option>
+                                    <option value="困难">困难</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>最少人数</label>
+                                <input type="number" id="script-players-min" value="2" min="1" max="20">
+                            </div>
+                            <div class="form-group">
+                                <label>最多人数</label>
+                                <input type="number" id="script-players-max" value="8" min="1" max="20">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>游戏时长（小时）</label>
+                                <input type="number" id="script-duration" value="4" min="1" max="12">
+                            </div>
+                            <div class="form-group">
+                                <label>价格（元/人）</label>
+                                <input type="number" id="script-price" value="168" min="1">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>简短描述 *</label>
+                            <input type="text" id="script-desc" placeholder="一句话概括剧本（显示在列表中）">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>详细介绍 *</label>
+                            <textarea id="script-fullDesc" rows="4" placeholder="详细介绍剧本的剧情、玩法、特色等"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>活动地点</label>
+                            <input type="text" id="script-location" placeholder="如：黄山风景区 · 西海大峡谷">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>标签（用逗号分隔）</label>
+                            <input type="text" id="script-tags" placeholder="如：推理, 悬疑, 烧脑">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>封面颜色主题</label>
+                            <input type="text" id="script-cover" placeholder="CSS渐变，如：linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                            <div class="cover-options">
+                                <div class="cover-option selected" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="selectCover(this)"></div>
+                                <div class="cover-option" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="selectCover(this)"></div>
+                                <div class="cover-option" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" onclick="selectCover(this)"></div>
+                                <div class="cover-option" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" onclick="selectCover(this)"></div>
+                                <div class="cover-option" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);" onclick="selectCover(this)"></div>
+                                <div class="cover-option" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);" onclick="selectCover(this)"></div>
+                                <div class="cover-option" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);" onclick="selectCover(this)"></div>
+                                <div class="cover-option" style="background: linear-gradient(135deg, #2d132c 0%, #801336 100%);" onclick="selectCover(this)"></div>
+                                <div class="cover-option" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);" onclick="selectCover(this)"></div>
+                                <div class="cover-option" style="background: linear-gradient(135deg, #0f3443 0%, #34e89e 100%);" onclick="selectCover(this)"></div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-secondary" style="margin-top:10px;">保存基础信息</button>
+                    </form>
+                </div>
+                
+                <!-- 场景管理 -->
+                <div class="editor-section">
+                    <h3>🏠 场景设置 <span id="scene-count"></span></h3>
+                    <div id="scenes-list">
+                        <!-- 动态加载 -->
+                    </div>
+                    <button class="btn-secondary btn-sm" id="add-scene-btn" style="margin-top:15px;">+ 添加场景</button>
+                </div>
+                
+                <!-- NPC管理 -->
+                <div class="editor-section">
+                    <h3>👤 NPC角色 <span id="npc-count"></span></h3>
+                    <div id="npcs-list">
+                        <!-- 动态加载 -->
+                    </div>
+                    <button class="btn-secondary btn-sm" id="add-npc-btn" style="margin-top:15px;">+ 添加NPC</button>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="editor-section" style="text-align:center;">
+                    <button class="btn-secondary" id="save-draft-btn">💾 保存草稿</button>
+                    <button class="btn-primary" id="submit-review-btn">📤 提交审核</button>
+                </div>
+            </div>
+            
+            <!-- 数据分析视图 -->
+            <div id="analytics-view" class="view-content">
+                <h2 style="margin-bottom:20px;">数据分析</h2>
+                <div id="analytics-content">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+            
+            <!-- 设置视图 -->
+            <div id="settings-view" class="view-content">
+                <h2 style="margin-bottom:20px;">设置</h2>
+                <div id="settings-content">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+        </main>
+        
+        <!-- 底部导航 -->
+        <nav class="studio-bottom-nav">
+            <div class="nav-item active" data-view="dashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">首页</span>
+            </div>
+            <div class="nav-item" data-view="scripts" style="position:relative;">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">剧本</span>
+                <span id="notification-badge" class="notification-badge">0</span>
+            </div>
+            <div class="nav-item" data-view="create">
+                <span class="nav-icon">✏️</span>
+                <span class="nav-label">创作</span>
+            </div>
+            <div class="nav-item" data-view="analytics">
+                <span class="nav-icon">📈</span>
+                <span class="nav-label">数据</span>
+            </div>
+            <div class="nav-item" data-view="settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">设置</span>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- 场景编辑弹窗 -->
+    <div id="scene-edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑场景</h3>
+                <button class="modal-close" onclick="hideModal('scene-edit-modal')">×</button>
+            </div>
+            <div class="form-group">
+                <label>场景名称 *</label>
+                <input type="text" id="scene-name" placeholder="如：客厅、书房、地下室">
+            </div>
+            <div class="form-group">
+                <label>场景描述</label>
+                <textarea id="scene-description" rows="3" placeholder="描述这个场景的样子"></textarea>
+            </div>
+            <div class="form-group">
+                <label>场景图片URL</label>
+                <input type="text" id="scene-image" placeholder="输入图片链接（可选）">
+            </div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-secondary" style="flex:1;" onclick="hideModal('scene-edit-modal')">取消</button>
+                <button class="btn-primary" style="flex:1;" onclick="saveScene()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- NPC编辑弹窗 -->
+    <div id="npc-edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑NPC</h3>
+                <button class="modal-close" onclick="hideModal('npc-edit-modal')">×</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>NPC名称 *</label>
+                    <input type="text" id="npc-name" placeholder="如：张管家、李医生">
+                </div>
+                <div class="form-group">
+                    <label>角色定位</label>
+                    <input type="text" id="npc-role" placeholder="如：山庄管家">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>头像URL</label>
+                <input type="text" id="npc-avatar" placeholder="输入头像图片链接（可选）">
+            </div>
+            <div class="form-group">
+                <label>角色描述</label>
+                <textarea id="npc-description" rows="2" placeholder="描述这个角色的外貌、性格等"></textarea>
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="npc-is-murderer">
+                <label for="npc-is-murderer">此NPC是凶手（仅剧本作者可见）</label>
+            </div>
+            
+            <div class="form-group">
+                <label>对话脚本</label>
+                <div id="dialogues-list">
+                    <!-- 动态加载 -->
+                </div>
+                <button class="btn-secondary btn-sm" onclick="addDialogue()" style="margin-top:10px;">+ 添加对话</button>
+            </div>
+            
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-secondary" style="flex:1;" onclick="hideModal('npc-edit-modal')">取消</button>
+                <button class="btn-primary" style="flex:1;" onclick="saveNPC()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 保证金支付弹窗 -->
+    <div id="deposit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>💰 支付保证金</h3>
+                <button class="modal-close" onclick="hideModal('deposit-modal')">×</button>
+            </div>
+            <p style="text-align:center; color:#aaa; margin-bottom:10px;">为保证剧本质量，需要支付保证金</p>
+            <div class="deposit-amount">¥1,000</div>
+            <p style="text-align:center; color:#666; font-size:12px; margin-bottom:20px;">审核通过后可全额退还</p>
+            
+            <h4 style="margin-bottom:10px;">选择支付方式</h4>
+            <div class="payment-methods">
+                <label class="payment-method" onclick="selectPayment(this, 'wechat')">
+                    <input type="radio" name="payment-method" value="wechat">
+                    <span class="payment-icon">💚</span>
+                    <span>微信支付</span>
+                </label>
+                <label class="payment-method" onclick="selectPayment(this, 'alipay')">
+                    <input type="radio" name="payment-method" value="alipay">
+                    <span class="payment-icon">💙</span>
+                    <span>支付宝</span>
+                </label>
+                <label class="payment-method" onclick="selectPayment(this, 'card')">
+                    <input type="radio" name="payment-method" value="card">
+                    <span class="payment-icon">💳</span>
+                    <span>银行卡</span>
+                </label>
+            </div>
+            
+            <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="processDeposit()">
+                确认支付 ¥1,000
+            </button>
+        </div>
+    </div>
+    
+    <!-- Toast提示 -->
+    <div id="toast"></div>
+    
+    <script src="creator-studio.js"></script>
+    <script>
+        // 封面选择
+        function selectCover(el) {
+            document.querySelectorAll('.cover-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('script-cover').value = el.style.background;
+        }
+        
+        // 支付方式选择
+        function selectPayment(el, method) {
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            el.classList.add('selected');
+            el.querySelector('input').checked = true;
+        }
+    </script>
+</body>
+</html>

@@ -421,6 +421,11 @@
                         <span>我的评价</span>
                         <span class="menu-arrow">></span>
                     </div>
+                    <div class="menu-item" data-action="my-creations">
+                        <span class="menu-icon">✍️</span>
+                        <span>我的创作</span>
+                        <span class="menu-arrow">></span>
+                    </div>
                     <div class="menu-item" data-action="coupons">
                         <span class="menu-icon">🎫</span>
                         <span>优惠券</span>
@@ -442,13 +447,14 @@
                 <button class="btn-logout" id="logout-btn">退出登录</button>
             </div>
 
-            <!-- 创作者中心页 -->
-            <div id="creator-page" class="page">
+            <!-- 我的创作页 -->
+            <div id="my-creations-page" class="page">
                 <div class="page-header with-back">
-                    <button class="back-btn" data-back="home">←</button>
-                    <h1>创作者中心</h1>
+                    <button class="back-btn" data-back="profile">←</button>
+                    <h1>我的创作</h1>
                 </div>
                 
+                <!-- 成为创作者介绍区 -->
                 <div class="creator-welcome">
                     <h2>✨ 成为创作者</h2>
                     <p>释放你的创意，打造独特的沉浸式剧本，让全国玩家体验你的作品</p>
@@ -477,7 +483,41 @@
                     </div>
                 </div>
 
-                <button class="btn-primary" id="apply-creator-btn">申请成为创作者</button>
+                <button class="btn-primary" id="apply-creator-btn2" onclick="navigateTo('creator-apply')">申请成为创作者</button>
+
+                <!-- 我的剧本列表 -->
+                <div class="section" style="margin-top:20px;">
+                    <div class="section-header">
+                        <h2>📝 我的作品</h2>
+                    </div>
+                </div>
+
+                <div id="my-creations-list" class="script-list">
+                    <!-- 创作者的剧本列表将在这里显示 -->
+                </div>
+                
+                <div id="no-creations" class="empty-state" style="display:none;">
+                    <div class="empty-icon">✍️</div>
+                    <h3>暂无创作</h3>
+                    <p>您还没有发布任何剧本，申请成为创作者后开始您的创作之旅</p>
+                    <button class="btn-primary" onclick="navigateTo('creator-apply')">立即申请</button>
+                </div>
+            </div>
+
+            <!-- 创作者中心页 -->
+            <div id="creator-page" class="page">
+                <div class="page-header with-back">
+                    <button class="back-btn" data-back="home">←</button>
+                    <h1>创作者中心</h1>
+                </div>
+                
+                <div class="empty-state">
+                    <div class="empty-icon">✍️</div>
+                    <h3>创作者中心</h3>
+                    <p>查看热门创作者和优秀作品</p>
+                    <button class="btn-primary" onclick="navigateTo('my-creations')">我的创作</button>
+                    <button class="btn-secondary" style="margin-top:10px;" onclick="navigateTo('creator-apply')">申请成为创作者</button>
+                </div>
             </div>
 
             <!-- 创作者申请页 -->
@@ -609,10 +649,6 @@
             <div class="nav-item" data-page="booking">
                 <span class="nav-icon">🎫</span>
                 <span class="nav-label">预约</span>
-            </div>
-            <div class="nav-item" data-page="creator">
-                <span class="nav-icon">✍️</span>
-                <span class="nav-label">创作</span>
             </div>
             <div class="nav-item" data-page="profile">
                 <span class="nav-icon">👤</span>

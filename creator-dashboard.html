@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>造梦空间 - 创作者工作台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f7;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .creator-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .creator-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .creator-level {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* 标签栏 */
+        .nav-tabs {
+            background: white;
+            display: flex;
+            overflow-x: auto;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 100px;
+            padding: 15px 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            color: #667eea;
+        }
+
+        .nav-tab.active {
+            color: #667eea;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* 内容区 */
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+
+        .stat-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .stat-card.highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stat-card.highlight .stat-value,
+        .stat-card.highlight .stat-label {
+            color: white;
+        }
+
+        /* 区块标题 */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title .btn-add {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* 剧本卡片 */
+        .scripts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .script-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .script-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .script-cover {
+            height: 140px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+        }
+
+        .script-info {
+            padding: 15px;
+        }
+
+        .script-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+        }
+
+        .script-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 12px;
+        }
+
+        .script-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-draft {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .script-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .script-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .btn-delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* 提交流程 */
+        .submit-flow {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .flow-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .flow-step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .flow-step:last-child::after {
+            display: none;
+        }
+
+        .flow-step.completed::after {
+            background: #27ae60;
+        }
+
+        .flow-step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .flow-step.completed .flow-step-number,
+        .flow-step.active .flow-step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .flow-step-label {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .flow-step.active .flow-step-label {
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        /* 电子钱包 */
+        .wallet-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wallet-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .wallet-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .wallet-balance {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .wallet-balance small {
+            font-size: 16px;
+        }
+
+        .wallet-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .wallet-btn {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .wallet-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* 交易记录 */
+        .transaction-list {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .transaction-icon.income {
+            background: #e8f5e9;
+        }
+
+        .transaction-icon.expense {
+            background: #ffebee;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .transaction-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .transaction-amount {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .transaction-amount.income {
+            color: #27ae60;
+        }
+
+        .transaction-amount.expense {
+            color: #e74c3c;
+        }
+
+        /* 提现表单 */
+        .withdraw-form {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            background: white;
+        }
+
+        .btn-submit-form {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 银行卡信息 */
+        .bank-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .bank-card-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        /* Tab内容隐藏 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        /* 编辑器样式 */
+        .editor-section {
+            margin-bottom: 20px;
+        }
+
+        .editor-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .editor-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            resize: vertical;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .editor-textarea:focus {
+            border-color: #667eea;
+        }
+
+        .editor-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .editor-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .editor-tag {
+            padding: 6px 14px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .editor-tag:hover {
+            background: #e0e0e0;
+        }
+
+        .editor-tag.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-cancel {
+            padding: 12px 24px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-submit-script {
+            padding: 12px 24px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: #27ae60;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        /* 警告提示 */
+        .deposit-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .deposit-warning-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .deposit-warning-text {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .deposit-warning-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #f59e0b 0%, #e67e22 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header-info {
+                flex-direction: column;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .flow-step::after {
+                display: none;
+            }
+
+            .editor-row {
+                grid-template-columns: 1fr;
+            }
+
+            .wallet-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header class="header">
+        <div class="header-info">
+            <div class="creator-avatar">✍️</div>
+            <div>
+                <div class="creator-name" id="creatorName">创作者</div>
+                <div class="creator-level" id="creatorLevel">等级：基础</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="header-btn" onclick="location.href='creator-login.html'">退出</button>
+        </div>
+    </header>
+
+    <!-- 标签栏 -->
+    <nav class="nav-tabs">
+        <div class="nav-tab active" data-tab="dashboard">📊 工作台</div>
+        <div class="nav-tab" data-tab="scripts">📝 我的剧本</div>
+        <div class="nav-tab" data-tab="create">✏️ 创作剧本</div>
+        <div class="nav-tab" data-tab="wallet">💰 电子钱包</div>
+        <div class="nav-tab" data-tab="settings">⚙️ 设置</div>
+    </nav>
+
+    <!-- 内容区 -->
+    <main class="content">
+        <!-- 工作台 -->
+        <div class="tab-content active" id="tab-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card highlight">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-value" id="statBalance">¥0.00</div>
+                    <div class="stat-label">可提现余额</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-value" id="statScripts">0</div>
+                    <div class="stat-label">我的剧本</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎮</div>
+                    <div class="stat-value" id="statPlays">0</div>
+                    <div class="stat-label">总体验次数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💎</div>
+                    <div class="stat-value" id="statIncome">¥0</div>
+                    <div class="stat-label">累计收益</div>
+                </div>
+            </div>
+
+            <!-- 保证金提示 -->
+            <div class="deposit-warning" id="depositWarning" style="display: none;">
+                <div class="deposit-warning-icon">⚠️</div>
+                <div class="deposit-warning-text">
+                    您尚未支付保证金，无法发布剧本和提现<br>
+                    保证金金额：¥500
+                </div>
+                <button class="deposit-warning-btn" onclick="showDepositModal()">立即缴纳保证金</button>
+            </div>
+
+            <!-- 提交流程 -->
+            <div class="submit-flow">
+                <h3 class="section-title">剧本发布流程</h3>
+                <div class="flow-steps">
+                    <div class="flow-step completed">
+                        <div class="flow-step-number">1</div>
+                        <div class="flow-step-label">填写基础信息</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">2</div>
+                        <div class="flow-step-label">设计场景和NPC</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">3</div>
+                        <div class="flow-step-label">提交审核</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">4</div>
+                        <div class="flow-step-label">上线收益</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近剧本 -->
+            <h3 class="section-title">最近剧本</h3>
+            <div class="scripts-grid" id="recentScripts"></div>
+        </div>
+
+        <!-- 我的剧本 -->
+        <div class="tab-content" id="tab-scripts">
+            <h3 class="section-title">
+                我的剧本
+                <button class="btn-add" onclick="switchTab('create')">+ 创建新剧本</button>
+            </h3>
+            <div class="scripts-grid" id="allScripts"></div>
+        </div>
+
+        <!-- 创作剧本 -->
+        <div class="tab-content" id="tab-create">
+            <h3 class="section-title" id="editorTitle">创作新剧本</h3>
+            <form id="scriptForm">
+                <input type="hidden" id="editScriptId">
+                
+                <div class="editor-section">
+                    <div class="editor-section-title">📌 基础信息</div>
+                    <div class="editor-row">
+                        <div class="form-group">
+                            <label class="form-label">剧本名称 *</label>
+                            <input type="text" class="form-input" id="scriptTitle" placeholder="给剧本起个吸引人的名字" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">剧本类型 *</label>
+                            <select class="form-select" id="scriptType" required>
+                                <option value="">请选择类型</option>
+                                <option value="剧本杀">剧本杀</option>
+                                <option value="密室逃脱">密室逃脱</option>
+                                <option value="沉浸式剧场">沉浸式剧场</option>
+                                <option value="互动展览">互动展览</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="editor-row">
+                        <div class="form-group">
+                            <label class="form-label">价格（元/人）*</label>
+                            <input type="number" class="form-input" id="scriptPrice" placeholder="建议 88-388" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">难度 *</label>
+                            <select class="form-select" id="scriptDifficulty" required>
+                                <option value="">请选择难度</option>
+                                <option value="入门">入门</option>
+                                <option value="普通">普通</option>
+                                <option value="困难">困难</option>
+                                <option value="专家">专家</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="editor-row">
+                        <div class="form-group">
+                            <label class="form-label">最少人数</label>
+                            <input type="number" class="form-input" id="scriptMinPlayers" placeholder="4" min="1" value="4">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">最多人数</label>
+                            <input type="number" class="form-input" id="scriptMaxPlayers" placeholder="12" min="1" value="12">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editor-section">
+                    <div class="editor-section-title">📖 剧本简介</div>
+                    <textarea class="editor-textarea" id="scriptDesc" placeholder="简单描述剧本的背景故事、玩法特点..."></textarea>
+                </div>
+
+                <div class="editor-section">
+                    <div class="editor-section-title">🎭 角色设定</div>
+                    <textarea class="editor-textarea" id="scriptRoles" placeholder="描述各个角色的身份、性格、任务目标..."></textarea>
+                </div>
+
+                <div class="editor-section">
+                    <div class="editor-section-title">🗺️ 场景设计</div>
+                    <textarea class="editor-textarea" id="scriptScenes" placeholder="描述各个场景的布局、道具、氛围..."></textarea>
+                </div>
+
+                <div class="editor-section">
+                    <div class="editor-section-title">🔍 谜题线索</div>
+                    <textarea class="editor-textarea" id="scriptPuzzles" placeholder="设计谜题、线索、关键道具、推理环节..."></textarea>
+                </div>
+
+                <div class="editor-section">
+                    <div class="editor-section-title">📋 游戏流程</div>
+                    <textarea class="editor-textarea" id="scriptFlow" placeholder="描述完整的游戏流程：开场 → 搜证 → 讨论 → 投票 → 结局..."></textarea>
+                </div>
+
+                <div class="editor-section">
+                    <div class="editor-section-title">💡 DM指南</div>
+                    <textarea class="editor-textarea" id="scriptDmGuide" placeholder="给主持人（DM）的提示：如何引导、关键节点、时间把控..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="resetForm()">重置</button>
+                    <button type="button" class="btn-save" onclick="saveScript()">💾 保存草稿</button>
+                    <button type="button" class="btn-submit-script" onclick="submitScript()">📤 提交审核</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 电子钱包 -->
+        <div class="tab-content" id="tab-wallet">
+            <div class="wallet-card">
+                <div class="wallet-label">可提现余额</div>
+                <div class="wallet-balance" id="walletBalance">¥0.00</div>
+                <div class="wallet-actions">
+                    <button class="wallet-btn" onclick="showWithdrawModal()">💳 提现</button>
+                    <button class="wallet-btn" onclick="switchTab('settings')">🏦 绑定账户</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-value" id="totalIncome">¥0</div>
+                    <div class="stat-label">累计收益</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📤</div>
+                    <div class="stat-value" id="withdrawn">¥0</div>
+                    <div class="stat-label">已提现金额</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-value" id="pendingAmount">¥0</div>
+                    <div class="stat-label">待审核提现</div>
+                </div>
+            </div>
+
+            <h3 class="section-title">💳 交易记录</h3>
+            <div class="transaction-list" id="transactionList"></div>
+        </div>
+
+        <!-- 设置 -->
+        <div class="tab-content" id="tab-settings">
+            <h3 class="section-title">🏦 收款账户设置</h3>
+            
+            <div class="withdraw-form">
+                <div class="form-group">
+                    <label class="form-label">提现方式</label>
+                    <select class="form-select" id="withdrawMethod" onchange="toggleBankFields()">
+                        <option value="wechat">💬 微信</option>
+                        <option value="alipay">💰 支付宝</option>
+                        <option value="bank">🏦 银行卡</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="wechatField">
+                    <label class="form-label">微信收款码</label>
+                    <input type="text" class="form-input" id="wechatAccount" placeholder="请输入微信账号">
+                    <p style="font-size: 12px; color: #888; margin-top: 5px;">请上传微信收款二维码或输入微信号</p>
+                </div>
+
+                <div class="form-group" id="alipayField" style="display: none;">
+                    <label class="form-label">支付宝账号</label>
+                    <input type="text" class="form-input" id="alipayAccount" placeholder="请输入支付宝账号">
+                </div>
+
+                <div id="bankFields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">开户银行</label>
+                        <select class="form-select" id="bankName">
+                            <option value="">请选择银行</option>
+                            <option value="中国工商银行">中国工商银行</option>
+                            <option value="中国农业银行">中国农业银行</option>
+                            <option value="中国银行">中国银行</option>
+                            <option value="中国建设银行">中国建设银行</option>
+                            <option value="招商银行">招商银行</option>
+                            <option value="交通银行">交通银行</option>
+                            <option value="浦发银行">浦发银行</option>
+                            <option value="兴业银行">兴业银行</option>
+                            <option value="其他银行">其他银行</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">开户行支行</label>
+                        <input type="text" class="form-input" id="bankBranch" placeholder="请输入支行名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">银行卡号</label>
+                        <input type="text" class="form-input" id="bankCard" placeholder="请输入银行卡号" maxlength="23">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">开户姓名</label>
+                        <input type="text" class="form-input" id="bankAccountName" placeholder="请输入开户姓名">
+                    </div>
+                </div>
+
+                <button class="btn-submit-form" onclick="savePaymentSettings()">💾 保存收款账户</button>
+            </div>
+
+            <h3 class="section-title">👤 个人信息</h3>
+            <div class="withdraw-form">
+                <div class="form-group">
+                    <label class="form-label">创作者笔名</label>
+                    <input type="text" class="form-input" id="creatorPenName" placeholder="您在平台的展示名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">个人简介</label>
+                    <textarea class="editor-textarea" id="creatorBio" placeholder="向玩家介绍一下自己..."></textarea>
+                </div>
+                <button class="btn-submit-form" onclick="saveProfile()">💾 保存个人信息</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 提现弹窗 -->
+    <div class="modal-overlay" id="withdrawModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">💳 提现申请</h3>
+                <button class="modal-close" onclick="closeWithdrawModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 14px; color: #888;">可提现金额</div>
+                    <div style="font-size: 32px; font-weight: 700; color: #667eea;" id="modalWithdrawBalance">¥0.00</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">提现金额</label>
+                    <input type="number" class="form-input" id="withdrawAmount" placeholder="请输入提现金额" min="1">
+                    <p style="font-size: 12px; color: #888; margin-top: 5px;">最低提现金额：¥10，手续费：0%</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">提现方式</label>
+                    <select class="form-select" id="withdrawToMethod">
+                        <option value="wechat">💬 微信</option>
+                        <option value="alipay">💰 支付宝</option>
+                        <option value="bank">🏦 银行卡</option>
+                    </select>
+                </div>
+
+                <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-top: 15px;">
+                    <div style="font-size: 13px; color: #666; margin-bottom: 8px;">💡 提现说明</div>
+                    <ul style="font-size: 12px; color: #888; padding-left: 20px;">
+                        <li>提现申请提交后，管理员将在1-3个工作日内审核</li>
+                        <li>审核通过后，资金将转入您绑定的账户</li>
+                        <li>如有疑问，请联系客服</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeWithdrawModal()">取消</button>
+                <button class="btn-save" style="background: #27ae60;" onclick="submitWithdraw()">提交提现申请</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 保证金弹窗 -->
+    <div class="modal-overlay" id="depositModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">💰 缴纳保证金</h3>
+                <button class="modal-close" onclick="closeDepositModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 48px;">🔒</div>
+                    <div style="font-size: 18px; font-weight: 600; margin: 15px 0;">保证金：¥500</div>
+                    <div style="font-size: 14px; color: #666;">
+                        缴纳保证金后，您即可发布剧本并参与平台分成
+                    </div>
+                </div>
+
+                <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-top: 15px;">
+                    <div style="font-size: 14px; font-weight: 500; margin-bottom: 10px;">✅ 保证金权益</div>
+                    <ul style="font-size: 13px; color: #666; padding-left: 20px; line-height: 1.8;">
+                        <li>可发布剧本参与平台分成</li>
+                        <li>获得黄金创作者标识</li>
+                        <li>优先获得平台推荐</li>
+                        <li>参与创作者专属活动</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeDepositModal()">稍后再说</button>
+                <button class="btn-save" style="background: linear-gradient(135deg, #f59e0b 0%, #e67e22 100%);" onclick="payDeposit()">立即支付</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ========== 配置 ==========
+        const DB_KEY = 'zaomeng_app_data';
+        const CREATOR_DB_KEY = 'zaomeng_creators_db';
+        const SCRIPTS_DB_KEY = 'zaomeng_scripts_db';
+        const WALLET_DB_KEY = 'zaomeng_wallet_db';
+
+        // ========== 状态 ==========
+        let currentCreator = null;
+        let currentCreatorId = null;
+
+        // ========== 初始化 ==========
+        function init() {
+            // 检查登录状态
+            if (sessionStorage.getItem('creatorLoggedIn') !== 'true') {
+                window.location.href = 'creator-login.html';
+                return;
+            }
+
+            currentCreatorId = sessionStorage.getItem('creatorId');
+            const phone = sessionStorage.getItem('creatorPhone');
+
+            // 获取创作者数据
+            const creatorDB = getCreatorDB();
+            currentCreator = creatorDB.creators.find(c => c.id === currentCreatorId);
+
+            if (!currentCreator) {
+                alert('创作者信息不存在');
+                logout();
+                return;
+            }
+
+            // 检查是否需要设置密码
+            if (sessionStorage.getItem('needSetPassword') === 'true' || !currentCreator.password) {
+                showSetPasswordModal();
+                return;
+            }
+
+            // 更新UI
+            updateUI();
+            loadScripts();
+            loadWallet();
+            loadSettings();
+
+            // 标签切换
+            initTabs();
+        }
+
+        function showSetPasswordModal() {
+            const modal = document.createElement('div');
+            modal.id = 'setPasswordOverlay';
+            modal.style.cssText = 'position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:9999; padding:20px;';
+            modal.innerHTML = `
+                <div style="background:white; border-radius:16px; padding:30px; width:100%; max-width:400px;">
+                    <h3 style="text-align:center; margin-bottom:20px;">🔐 设置登录密码</h3>
+                    <p style="text-align:center; color:#888; font-size:14px; margin-bottom:20px;">首次登录需要设置密码，用于下次快速登录</p>
+                    <div style="margin-bottom:15px;">
+                        <label style="display:block; font-size:14px; margin-bottom:5px;">设置密码</label>
+                        <input type="password" id="newPassword" placeholder="6位以上密码" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px; font-size:16px;">
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label style="display:block; font-size:14px; margin-bottom:5px;">确认密码</label>
+                        <input type="password" id="confirmPassword" placeholder="再次输入密码" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px; font-size:16px;">
+                    </div>
+                    <button onclick="saveNewPassword()" style="width:100%; padding:14px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border:none; border-radius:8px; font-size:16px; cursor:pointer;">确认设置</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function saveNewPassword() {
+            const password = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (password.length < 6) {
+                alert('密码至少6位');
+                return;
+            }
+
+            if (password !== confirm) {
+                alert('两次密码不一致');
+                return;
+            }
+
+            const creatorDB = getCreatorDB();
+            const creator = creatorDB.creators.find(c => c.id === currentCreatorId);
+            if (creator) {
+                creator.password = password;
+                saveCreatorDB(creatorDB);
+                currentCreator = creator;
+            }
+
+            sessionStorage.removeItem('needSetPassword');
+            document.getElementById('setPasswordOverlay').remove();
+
+            // 继续初始化
+            updateUI();
+            loadScripts();
+            loadWallet();
+            loadSettings();
+            initTabs();
+
+            showToast('密码设置成功', 'success');
+        }
+
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        // ========== 工具函数 ==========
+        function getCreatorDB() {
+            try {
+                const data = localStorage.getItem(CREATOR_DB_KEY);
+                return data ? JSON.parse(data) : { creators: [], applications: [], transactions: [] };
+            } catch (e) {
+                return { creators: [], applications: [], transactions: [] };
+            }
+        }
+
+        function saveCreatorDB(data) {
+            localStorage.setItem(CREATOR_DB_KEY, JSON.stringify(data));
+        }
+
+        function getScriptsDB() {
+            try {
+                const data = localStorage.getItem(SCRIPTS_DB_KEY);
+                return data ? JSON.parse(data) : { scripts: [] };
+            } catch (e) {
+                return { scripts: [] };
+            }
+        }
+
+        function saveScriptsDB(data) {
+            localStorage.setItem(SCRIPTS_DB_KEY, JSON.stringify(data));
+        }
+
+        function getWalletDB() {
+            try {
+                const data = localStorage.getItem(WALLET_DB_KEY);
+                return data ? JSON.parse(data) : { balance: 0, withdrawn: 0, pending: 0, records: [] };
+            } catch (e) {
+                return { balance: 0, withdrawn: 0, pending: 0, records: [] };
+            }
+        }
+
+        function saveWalletDB(data) {
+            localStorage.setItem(WALLET_DB_KEY, JSON.stringify(data));
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = $('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            if (type === 'success') toast.classList.add('success');
+            if (type === 'error') toast.classList.add('error');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // ========== 标签切换 ==========
+        function initTabs() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    switchTab(tab.dataset.tab);
+                });
+            });
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.toggle('active', content.id === 'tab-' + tabName);
+            });
+        }
+
+        // ========== 更新UI ==========
+        function updateUI() {
+            $('creatorName').textContent = currentCreator.penName || '创作者';
+            $('creatorLevel').textContent = '等级：' + (currentCreator.tier === 'basic' ? '基础' : currentCreator.tier === 'silver' ? '白银' : '黄金');
+
+            // 保证金提示
+            $('depositWarning').style.display = currentCreator.depositPaid ? 'none' : 'block';
+        }
+
+        // ========== 剧本管理 ==========
+        function loadScripts() {
+            const scriptsDB = getScriptsDB();
+            const myScripts = scriptsDB.scripts.filter(s => s.creatorId === currentCreatorId);
+
+            // 更新统计
+            $('statScripts').textContent = myScripts.length;
+            $('statPlays').textContent = myScripts.reduce((sum, s) => sum + (s.playCount || 0), 0);
+            $('statIncome').textContent = '¥' + (currentCreator.stats?.totalRevenue || 0);
+
+            // 最近剧本
+            const recentScripts = myScripts.slice(0, 4);
+            $('recentScripts').innerHTML = renderScriptCards(recentScripts);
+
+            // 所有剧本
+            $('allScripts').innerHTML = myScripts.length > 0 
+                ? renderScriptCards(myScripts) 
+                : '<div class="empty-state"><div class="empty-state-icon">📝</div><p>还没有剧本，<a href="#" onclick="switchTab(\'create\')" style="color:#667eea;">立即创作</a></p></div>';
+        }
+
+        function renderScriptCards(scripts) {
+            if (scripts.length === 0) return '<div class="empty-state"><div class="empty-state-icon">📝</div><p>暂无剧本</p></div>';
+
+            return scripts.map(script => `
+                <div class="script-card">
+                    <div class="script-cover">${script.type === '剧本杀' ? '🎭' : script.type === '密室逃脱' ? '🔐' : script.type === '沉浸式剧场' ? '🎪' : '🎨'}</div>
+                    <div class="script-info">
+                        <div class="script-title">${script.title}</div>
+                        <div class="script-meta">
+                            <span>${script.type}</span>
+                            <span>¥${script.price}/人</span>
+                            <span>${script.playCount || 0}次体验</span>
+                        </div>
+                        <span class="script-status status-${script.status}">${getStatusText(script.status)}</span>
+                        <div class="script-actions">
+                            ${script.status === 'draft' ? `<button class="btn-edit" onclick="editScript('${script.id}')">编辑</button>` : ''}
+                            ${script.status === 'rejected' ? `<button class="btn-edit" onclick="editScript('${script.id}')">修改后重提</button>` : ''}
+                            ${script.status === 'pending' ? '<button class="btn-submit" disabled>审核中</button>' : ''}
+                            ${script.status === 'approved' ? '<button class="btn-submit" disabled>已上线</button>' : ''}
+                            ${script.status === 'draft' ? `<button class="btn-submit" onclick="submitDraft('${script.id}')">提交</button>` : ''}
+                            <button class="btn-delete" onclick="deleteScript('${script.id}')">删除</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            const map = {
+                'draft': '草稿',
+                'pending': '审核中',
+                'approved': '已上线',
+                'rejected': '已拒绝'
+            };
+            return map[status] || status;
+        }
+
+        function editScript(scriptId) {
+            const scriptsDB = getScriptsDB();
+            const script = scriptsDB.scripts.find(s => s.id == scriptId);
+
+            if (!script) {
+                showToast('剧本不存在', 'error');
+                return;
+            }
+
+            $('editScriptId').value = scriptId;
+            $('editorTitle').textContent = '编辑剧本：' + script.title;
+            $('scriptTitle').value = script.title || '';
+            $('scriptType').value = script.type || '';
+            $('scriptPrice').value = script.price || '';
+            $('scriptDifficulty').value = script.difficulty || '';
+            $('scriptMinPlayers').value = script.players?.min || 4;
+            $('scriptMaxPlayers').value = script.players?.max || 12;
+            $('scriptDesc').value = script.fullDesc || '';
+            $('scriptRoles').value = script.roles || '';
+            $('scriptScenes').value = script.scenes || '';
+            $('scriptPuzzles').value = script.puzzles || '';
+            $('scriptFlow').value = script.flow || '';
+            $('scriptDmGuide').value = script.dmGuide || '';
+
+            switchTab('create');
+        }
+
+        function saveScript() {
+            const title = $('scriptTitle').value.trim();
+            const type = $('scriptType').value;
+            const price = parseFloat($('scriptPrice').value);
+            const difficulty = $('scriptDifficulty').value;
+
+            if (!title || !type || !price || !difficulty) {
+                showToast('请填写必填项', 'error');
+                return;
+            }
+
+            const scriptsDB = getScriptsDB();
+            const editId = $('editScriptId').value;
+
+            const scriptData = {
+                id: editId || 'script_' + Date.now(),
+                creatorId: currentCreatorId,
+                creatorName: currentCreator.penName,
+                title: title,
+                type: type,
+                price: price,
+                difficulty: difficulty,
+                players: {
+                    min: parseInt($('scriptMinPlayers').value) || 4,
+                    max: parseInt($('scriptMaxPlayers').value) || 12
+                },
+                fullDesc: $('scriptDesc').value,
+                roles: $('scriptRoles').value,
+                scenes: $('scriptScenes').value,
+                puzzles: $('scriptPuzzles').value,
+                flow: $('scriptFlow').value,
+                dmGuide: $('scriptDmGuide').value,
+                status: editId ? scriptsDB.scripts.find(s => s.id == editId)?.status || 'draft' : 'draft',
+                coverImage: '',
+                playCount: 0,
+                rating: 0,
+                createdAt: editId ? scriptsDB.scripts.find(s => s.id == editId)?.createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (editId) {
+                const index = scriptsDB.scripts.findIndex(s => s.id == editId);
+                if (index > -1) {
+                    scriptsDB.scripts[index] = scriptData;
+                }
+            } else {
+                scriptsDB.scripts.push(scriptData);
+            }
+
+            saveScriptsDB(scriptsDB);
+            showToast('保存成功', 'success');
+            loadScripts();
+            resetForm();
+        }
+
+        function submitScript() {
+            const title = $('scriptTitle').value.trim();
+            const type = $('scriptType').value;
+            const price = parseFloat($('scriptPrice').value);
+            const difficulty = $('scriptDifficulty').value;
+
+            if (!title || !type || !price || !difficulty) {
+                showToast('请填写必填项', 'error');
+                return;
+            }
+
+            if (!currentCreator.depositPaid) {
+                showToast('请先缴纳保证金', 'error');
+                showDepositModal();
+                return;
+            }
+
+            const scriptsDB = getScriptsDB();
+            const editId = $('editScriptId').value;
+
+            const scriptData = {
+                id: editId || 'script_' + Date.now(),
+                creatorId: currentCreatorId,
+                creatorName: currentCreator.penName,
+                title: title,
+                type: type,
+                price: price,
+                difficulty: difficulty,
+                players: {
+                    min: parseInt($('scriptMinPlayers').value) || 4,
+                    max: parseInt($('scriptMaxPlayers').value) || 12
+                },
+                fullDesc: $('scriptDesc').value,
+                roles: $('scriptRoles').value,
+                scenes: $('scriptScenes').value,
+                puzzles: $('scriptPuzzles').value,
+                flow: $('scriptFlow').value,
+                dmGuide: $('scriptDmGuide').value,
+                status: 'pending',
+                coverImage: '',
+                playCount: 0,
+                rating: 0,
+                createdAt: editId ? scriptsDB.scripts.find(s => s.id == editId)?.createdAt : new Date().toISOString(),
+                submittedAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (editId) {
+                const index = scriptsDB.scripts.findIndex(s => s.id == editId);
+                if (index > -1) {
+                    scriptsDB.scripts[index] = scriptData;
+                }
+            } else {
+                scriptsDB.scripts.push(scriptData);
+            }
+
+            saveScriptsDB(scriptsDB);
+            showToast('剧本已提交审核', 'success');
+            loadScripts();
+            resetForm();
+            switchTab('scripts');
+        }
+
+        function submitDraft(scriptId) {
+            const scriptsDB = getScriptsDB();
+            const script = scriptsDB.scripts.find(s => s.id == scriptId);
+
+            if (script) {
+                script.status = 'pending';
+                script.submittedAt = new Date().toISOString();
+                saveScriptsDB(scriptsDB);
+                showToast('剧本已提交审核', 'success');
+                loadScripts();
+            }
+        }
+
+        function deleteScript(scriptId) {
+            if (!confirm('确定要删除这个剧本吗？')) return;
+
+            const scriptsDB = getScriptsDB();
+            scriptsDB.scripts = scriptsDB.scripts.filter(s => s.id != scriptId);
+            saveScriptsDB(scriptsDB);
+            showToast('已删除', 'success');
+            loadScripts();
+        }
+
+        function resetForm() {
+            document.getElementById('scriptForm').reset();
+            $('editScriptId').value = '';
+            $('editorTitle').textContent = '✏️ 创作新剧本';
+        }
+
+        // ========== 电子钱包 ==========
+        function loadWallet() {
+            const wallet = getWalletDB();
+
+            $('walletBalance').textContent = '¥' + wallet.balance.toFixed(2);
+            $('statBalance').textContent = '¥' + wallet.balance.toFixed(2);
+            $('totalIncome').textContent = '¥' + (wallet.balance + wallet.withdrawn).toFixed(2);
+            $('withdrawn').textContent = '¥' + wallet.withdrawn.toFixed(2);
+            $('pendingAmount').textContent = '¥' + wallet.pending.toFixed(2);
+
+            // 交易记录
+            const records = wallet.records.filter(r => r.creatorId === currentCreatorId)
+                .sort((a, b) => new Date(b.time) - new Date(a.time));
+
+            if (records.length === 0) {
+                $('transactionList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📜</div><p>暂无交易记录</p></div>';
+            } else {
+                $('transactionList').innerHTML = records.map(record => `
+                    <div class="transaction-item">
+                        <div class="transaction-icon ${record.type}">${record.type === 'income' ? '📈' : '📤'}</div>
+                        <div class="transaction-info">
+                            <div class="transaction-title">${record.title}</div>
+                            <div class="transaction-time">${formatDate(record.time)}</div>
+                        </div>
+                        <div class="transaction-amount ${record.type}">
+                            ${record.type === 'income' ? '+' : '-'}${record.amount.toFixed(2)}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function showWithdrawModal() {
+            if (!currentCreator.depositPaid) {
+                showToast('请先缴纳保证金', 'error');
+                showDepositModal();
+                return;
+            }
+
+            const wallet = getWalletDB();
+            $('modalWithdrawBalance').textContent = '¥' + wallet.balance.toFixed(2);
+            $('withdrawModal').classList.add('show');
+        }
+
+        function closeWithdrawModal() {
+            $('withdrawModal').classList.remove('show');
+        }
+
+        function submitWithdraw() {
+            const amount = parseFloat($('withdrawAmount').value);
+            const method = $('withdrawToMethod').value;
+
+            if (!amount || amount < 10) {
+                showToast('最低提现金额为10元', 'error');
+                return;
+            }
+
+            const wallet = getWalletDB();
+            if (amount > wallet.balance) {
+                showToast('余额不足', 'error');
+                return;
+            }
+
+            // 检查是否已绑定账户
+            const settings = currentCreator.paymentSettings || {};
+            if (!settings.method) {
+                showToast('请先在设置中绑定收款账户', 'error');
+                closeWithdrawModal();
+                switchTab('settings');
+                return;
+            }
+
+            // 创建提现记录
+            const record = {
+                id: 'record_' + Date.now(),
+                creatorId: currentCreatorId,
+                type: 'withdraw',
+                title: '提现到' + (method === 'wechat' ? '微信' : method === 'alipay' ? '支付宝' : '银行卡'),
+                amount: amount,
+                method: method,
+                status: 'pending',
+                time: new Date().toISOString()
+            };
+
+            wallet.records.push(record);
+            wallet.balance = parseFloat((wallet.balance - amount).toFixed(2));
+            wallet.pending = parseFloat((wallet.pending + amount).toFixed(2));
+            saveWalletDB(wallet);
+
+            // 更新创作者
+            const creatorDB = getCreatorDB();
+            const creator = creatorDB.creators.find(c => c.id === currentCreatorId);
+            if (creator) {
+                creator.pendingWithdrawals = creator.pendingWithdrawals || [];
+                creator.pendingWithdrawals.push({
+                    id: record.id,
+                    amount: amount,
+                    method: method,
+                    status: 'pending',
+                    createdAt: new Date().toISOString()
+                });
+                saveCreatorDB(creatorDB);
+            }
+
+            closeWithdrawModal();
+            showToast('提现申请已提交，等待审核', 'success');
+            loadWallet();
+        }
+
+        // ========== 保证金 ==========
+        function showDepositModal() {
+            $('depositModal').classList.add('show');
+        }
+
+        function closeDepositModal() {
+            $('depositModal').classList.remove('show');
+        }
+
+        function payDeposit() {
+            // 模拟支付
+            const creatorDB = getCreatorDB();
+            const creator = creatorDB.creators.find(c => c.id === currentCreatorId);
+
+            if (creator) {
+                creator.depositPaid = true;
+                creator.depositPaidAt = new Date().toISOString();
+                saveCreatorDB(creatorDB);
+                currentCreator = creator;
+
+                // 添加交易记录
+                const wallet = getWalletDB();
+                wallet.records.push({
+                    id: 'record_' + Date.now(),
+                    creatorId: currentCreatorId,
+                    type: 'expense',
+                    title: '保证金',
+                    amount: 500,
+                    time: new Date().toISOString()
+                });
+                saveWalletDB(wallet);
+
+                showToast('保证金缴纳成功', 'success');
+                closeDepositModal();
+                updateUI();
+                loadWallet();
+            }
+        }
+
+        // ========== 设置 ==========
+        function loadSettings() {
+            const settings = currentCreator.paymentSettings || {};
+            
+            $('wechatAccount').value = settings.wechat || '';
+            $('alipayAccount').value = settings.alipay || '';
+            $('bankName').value = settings.bankName || '';
+            $('bankBranch').value = settings.bankBranch || '';
+            $('bankCard').value = settings.bankCard || '';
+            $('bankAccountName').value = settings.bankAccountName || '';
+
+            $('creatorPenName').value = currentCreator.penName || '';
+            $('creatorBio').value = currentCreator.bio || '';
+
+            toggleBankFields();
+        }
+
+        function toggleBankFields() {
+            const method = $('withdrawMethod').value;
+            $('wechatField').style.display = method === 'wechat' ? 'block' : 'none';
+            $('alipayField').style.display = method === 'alipay' ? 'block' : 'none';
+            $('bankFields').style.display = method === 'bank' ? 'block' : 'none';
+        }
+
+        function savePaymentSettings() {
+            const method = $('withdrawMethod').value;
+            const settings = { method: method };
+
+            if (method === 'wechat') {
+                settings.wechat = $('wechatAccount').value;
+            } else if (method === 'alipay') {
+                settings.alipay = $('alipayAccount').value;
+            } else {
+                settings.bankName = $('bankName').value;
+                settings.bankBranch = $('bankBranch').value;
+                settings.bankCard = $('bankCard').value;
+                settings.bankAccountName = $('bankAccountName').value;
+            }
+
+            const creatorDB = getCreatorDB();
+            const creator = creatorDB.creators.find(c => c.id === currentCreatorId);
+
+            if (creator) {
+                creator.paymentSettings = settings;
+                saveCreatorDB(creatorDB);
+                currentCreator = creator;
+                showToast('收款账户已保存', 'success');
+            }
+        }
+
+        function saveProfile() {
+            const penName = $('creatorPenName').value.trim();
+            const bio = $('creatorBio').value.trim();
+
+            const creatorDB = getCreatorDB();
+            const creator = creatorDB.creators.find(c => c.id === currentCreatorId);
+
+            if (creator) {
+                creator.penName = penName || creator.phone;
+                creator.bio = bio;
+                saveCreatorDB(creatorDB);
+                currentCreator = creator;
+                updateUI();
+                showToast('个人信息已保存', 'success');
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('creatorLoggedIn');
+            sessionStorage.removeItem('creatorPhone');
+            sessionStorage.removeItem('creatorId');
+            window.location.href = 'creator-login.html';
+        }
+
+        // ========== 启动 ==========
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

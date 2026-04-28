@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>造梦空间 - 创作者管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* 登录页面 */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-hint {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+            font-size: 13px;
+        }
+
+        .login-error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        /* 管理后台 */
+        .admin-container {
+            display: none;
+        }
+
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .admin-logo span {
+            font-size: 32px;
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #667eea;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: #fee;
+            color: #e74c3c;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .admin-content {
+            padding: 30px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* 标签页 */
+        .tab-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab-item {
+            flex: 1;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab-item:hover {
+            background: #f8f8f8;
+        }
+
+        .tab-item.active {
+            color: #667eea;
+        }
+
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .tab-content {
+            padding: 25px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 列表样式 */
+        .list-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .list-empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .application-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+            transition: all 0.2s;
+        }
+
+        .application-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .applicant-info h3 {
+            font-size: 18px;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+
+        .applicant-meta {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .application-detail {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            gap: 8px;
+        }
+
+        .detail-label {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .detail-value {
+            color: #333;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .application-body {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .application-body h4 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .application-body p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .application-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-approve {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .btn-approve:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-reject {
+            padding: 10px 24px;
+            background: #fff;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-reject:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-view {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .modal-body textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            outline: none;
+        }
+
+        .modal-body textarea:focus {
+            border-color: #667eea;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-cancel {
+            padding: 10px 24px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-confirm-reject {
+            padding: 10px 24px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* 通知 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: #27ae60;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .admin-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .admin-content {
+                padding: 20px;
+            }
+
+            .application-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .application-actions {
+                flex-direction: column;
+            }
+
+            .application-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-logo">✍️</div>
+                <h1 class="login-title">造梦空间</h1>
+                <p class="login-subtitle">创作者管理系统</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">管理员账号</label>
+                    <input type="text" class="form-input" id="adminUsername" placeholder="请输入管理员账号" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">登录密码</label>
+                    <input type="password" class="form-input" id="adminPassword" placeholder="请输入密码" required>
+                </div>
+                
+                <button type="submit" class="btn-login">登 录</button>
+                
+                <p class="login-error" id="loginError">账号或密码错误</p>
+            </form>
+            
+            <p class="login-hint">默认管理员账号: admin / admin123</p>
+        </div>
+    </div>
+
+    <!-- 管理后台 -->
+    <div class="admin-container" id="adminPage">
+        <header class="admin-header">
+            <div class="admin-logo">
+                <span>✍️</span>
+                <span>造梦空间 · 管理后台</span>
+            </div>
+            
+            <nav class="admin-nav">
+                <button class="nav-btn active" data-tab="overview">总览</button>
+                <button class="nav-btn" data-tab="applications">创作者申请</button>
+                <button class="nav-btn" data-tab="scripts">剧本审核</button>
+                <button class="nav-btn" data-tab="creators">创作者</button>
+                <button class="nav-btn" data-tab="reviews">评论管理</button>
+                <button class="nav-btn" data-tab="cities">城市分类</button>
+            </nav>
+            
+            <div class="admin-user">
+                <div class="user-info">
+                    <div class="user-name" id="adminName">管理员</div>
+                    <div class="user-role">系统管理员</div>
+                </div>
+                <button class="btn-logout" onclick="logout()">退出登录</button>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            <!-- 总览标签页 -->
+            <div class="tab-content active" id="tab-overview">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-value" id="statUsers">0</div>
+                        <div class="stat-label">注册用户</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✍️</div>
+                        <div class="stat-value" id="statCreators">0</div>
+                        <div class="stat-label">创作者总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-value" id="statPendingApps">0</div>
+                        <div class="stat-label">待审核申请</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-value" id="statScripts">0</div>
+                        <div class="stat-label">剧本总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎮</div>
+                        <div class="stat-value" id="statPlays">0</div>
+                        <div class="stat-label">总体验次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="statRevenue">¥0</div>
+                        <div class="stat-label">总收入</div>
+                    </div>
+                </div>
+
+                <div class="tab-container">
+                    <div class="tab-header">
+                        <div class="tab-item active" data-section="recent-apps">最新申请</div>
+                        <div class="tab-item" data-section="recent-scripts">最新剧本</div>
+                    </div>
+                    <div class="tab-content active" id="section-recent-apps">
+                        <div id="recentApplications"></div>
+                    </div>
+                    <div class="tab-content" id="section-recent-scripts">
+                        <div id="recentScripts"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 创作者申请标签页 -->
+            <div class="tab-content" id="tab-applications">
+                <h2 style="margin-bottom: 20px; color: #1a1a2e;">创作者申请管理</h2>
+                <div id="applicationsList"></div>
+            </div>
+
+            <!-- 剧本审核标签页 -->
+            <div class="tab-content" id="tab-scripts">
+                <h2 style="margin-bottom: 20px; color: #1a1a2e;">剧本审核管理</h2>
+                <div id="scriptsList"></div>
+            </div>
+
+            <!-- 创作者列表标签页 -->
+            <div class="tab-content" id="tab-creators">
+                <h2 style="margin-bottom: 20px; color: #1a1a2e;">创作者管理</h2>
+                <div id="creatorsList"></div>
+            </div>
+            
+            <div class="tab-content" id="tab-reviews">
+                <h2 style="margin-bottom: 20px; color: #1a1a2e;">评论管理</h2>
+                <div class="filter-bar">
+                    <select id="reviewScriptFilter" onchange="loadReviews()">
+                        <option value="">全部剧本</option>
+                    </select>
+                    <input type="text" id="reviewSearch" placeholder="搜索评论内容或用户..." oninput="loadReviews()">
+                </div>
+                <div id="reviewsList"></div>
+            </div>
+            
+            <div class="tab-content" id="tab-cities">
+                <h2 style="margin-bottom: 20px; color: #1a1a2e;">城市分类管理</h2>
+                <div class="action-bar">
+                    <button class="btn-add" onclick="showAddCityModal()">+ 添加城市</button>
+                </div>
+                <div id="citiesList"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 拒绝原因弹窗 -->
+    <div class="modal-overlay" id="rejectModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">拒绝原因</h3>
+                <button class="modal-close" onclick="closeRejectModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 10px; color: #666; font-size: 14px;">请填写拒绝原因（将通知申请人）：</p>
+                <textarea id="rejectReason" placeholder="请输入拒绝原因..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeRejectModal()">取消</button>
+                <button class="btn-confirm-reject" id="confirmRejectBtn">确认拒绝</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ========== 配置 ==========
+        const ADMIN_ACCOUNT = {
+            username: 'admin',
+            password: 'admin123'
+        };
+
+        // ========== 数据库键 ==========
+        const DB_KEY = 'zaomeng_app_data';
+        const CREATOR_DB_KEY = 'zaomeng_creators_db';
+        const SCRIPTS_DB_KEY = 'zaomeng_scripts_db';
+
+        // ========== 工具函数 ==========
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            if (type === 'success') toast.classList.add('success');
+            if (type === 'error') toast.classList.add('error');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        function getStorageData() {
+            try {
+                const data = localStorage.getItem(DB_KEY);
+                return data ? JSON.parse(data) : { users: [] };
+            } catch (e) {
+                return { users: [] };
+            }
+        }
+
+        function saveStorageData(data) {
+            localStorage.setItem(DB_KEY, JSON.stringify(data));
+        }
+
+        function getCreatorDB() {
+            try {
+                const data = localStorage.getItem(CREATOR_DB_KEY);
+                return data ? JSON.parse(data) : { creators: [], applications: [], transactions: [] };
+            } catch (e) {
+                return { creators: [], applications: [], transactions: [] };
+            }
+        }
+
+        function saveCreatorDB(data) {
+            localStorage.setItem(CREATOR_DB_KEY, JSON.stringify(data));
+        }
+
+        function getScriptsDB() {
+            try {
+                const data = localStorage.getItem(SCRIPTS_DB_KEY);
+                return data ? JSON.parse(data) : { scripts: [] };
+            } catch (e) {
+                return { scripts: [] };
+            }
+        }
+
+        function saveScriptsDB(data) {
+            localStorage.setItem(SCRIPTS_DB_KEY, JSON.stringify(data));
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // ========== 登录 ==========
+        function initLogin() {
+            // 检查是否已登录
+            if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+                showAdminPage();
+                return;
+            }
+
+            document.getElementById('loginForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('adminUsername').value.trim();
+                const password = document.getElementById('adminPassword').value;
+
+                if (username === ADMIN_ACCOUNT.username && password === ADMIN_ACCOUNT.password) {
+                    sessionStorage.setItem('adminLoggedIn', 'true');
+                    showAdminPage();
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                }
+            });
+        }
+
+        function logout() {
+            sessionStorage.removeItem('adminLoggedIn');
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('adminPage').style.display = 'none';
+            document.getElementById('loginForm').reset();
+        }
+
+        function showAdminPage() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminPage').style.display = 'block';
+            initAdminPage();
+        }
+
+        // ========== 管理后台 ==========
+        let currentTab = 'overview';
+        let currentSection = 'recent-apps';
+        let pendingRejectType = null;
+        let pendingRejectId = null;
+
+        function initAdminPage() {
+            initNavigation();
+            initTabs();
+            loadOverview();
+        }
+
+        function initNavigation() {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const tab = btn.dataset.tab;
+                    currentTab = tab;
+                    
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(`tab-${tab}`).classList.add('active');
+                    
+                    loadTabData(tab);
+                });
+            });
+        }
+
+        function initTabs() {
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    item.classList.add('active');
+                    const section = item.dataset.section;
+                    document.getElementById(`section-${section}`).classList.add('active');
+                    currentSection = section;
+                });
+            });
+        }
+
+        function loadTabData(tab) {
+            switch (tab) {
+                case 'overview':
+                    loadOverview();
+                    break;
+                case 'applications':
+                    loadApplications();
+                    break;
+                case 'scripts':
+                    loadScripts();
+                    break;
+                case 'creators':
+                    loadCreators();
+                    break;
+                case 'reviews':
+                    loadReviews();
+                    break;
+                case 'cities':
+                    loadCities();
+                    break;
+            }
+        }
+
+        // ========== 总览 ==========
+        function loadOverview() {
+            const userData = getStorageData();
+            const creatorDB = getCreatorDB();
+            const scriptsDB = getScriptsDB();
+
+            document.getElementById('statUsers').textContent = userData.users?.length || 0;
+            document.getElementById('statCreators').textContent = creatorDB.creators.length;
+            document.getElementById('statPendingApps').textContent = 
+                creatorDB.applications.filter(a => a.status === 'pending').length +
+                scriptsDB.scripts.filter(s => s.status === 'pending').length;
+            document.getElementById('statScripts').textContent = scriptsDB.scripts.length;
+            
+            // 计算总收入（简单估算）
+            const totalPlays = creatorDB.creators.reduce((sum, c) => sum + (c.stats?.totalPlays || 0), 0);
+            document.getElementById('statPlays').textContent = totalPlays;
+            document.getElementById('statRevenue').textContent = `¥${totalPlays * 188}`;
+
+            // 最新申请
+            const recentApps = [...creatorDB.applications]
+                .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))
+                .slice(0, 5);
+            
+            const recentAppsEl = document.getElementById('recentApplications');
+            if (recentApps.length === 0) {
+                recentAppsEl.innerHTML = `
+                    <div class="list-empty">
+                        <div class="list-empty-icon">📭</div>
+                        <p>暂无创作者申请</p>
+                    </div>
+                `;
+            } else {
+                recentAppsEl.innerHTML = recentApps.map(app => `
+                    <div class="application-card">
+                        <div class="application-header">
+                            <div class="applicant-info">
+                                <h3>${app.penName}</h3>
+                                <div class="applicant-meta">
+                                    提交于 ${formatDate(app.submittedAt)}
+                                </div>
+                            </div>
+                            <span class="status-badge status-${app.status}">
+                                ${app.status === 'pending' ? '待审核' : app.status === 'approved' ? '已通过' : '已拒绝'}
+                            </span>
+                        </div>
+                        <div class="application-detail">
+                            <div class="detail-item">
+                                <span class="detail-label">专长：</span>
+                                <span class="detail-value">${app.specialty}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">邮箱：</span>
+                                <span class="detail-value">${app.email}</span>
+                            </div>
+                        </div>
+                        ${app.status === 'pending' ? `
+                        <div class="application-actions">
+                            <button class="btn-approve" onclick="approveApplication('${app.id}')">✓ 通过</button>
+                            <button class="btn-reject" onclick="openRejectModal('application', '${app.id}')">✗ 拒绝</button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+
+            // 最新剧本
+            const recentScripts = [...scriptsDB.scripts]
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+                .slice(0, 5);
+            
+            const recentScriptsEl = document.getElementById('recentScripts');
+            if (recentScripts.length === 0) {
+                recentScriptsEl.innerHTML = `
+                    <div class="list-empty">
+                        <div class="list-empty-icon">📚</div>
+                        <p>暂无剧本</p>
+                    </div>
+                `;
+            } else {
+                recentScriptsEl.innerHTML = recentScripts.map(script => `
+                    <div class="application-card">
+                        <div class="application-header">
+                            <div class="applicant-info">
+                                <h3>${script.title}</h3>
+                                <div class="applicant-meta">
+                                    创建于 ${formatDate(script.createdAt)}
+                                </div>
+                            </div>
+                            <span class="status-badge status-${script.status}">
+                                ${script.status === 'pending' ? '待审核' : script.status === 'approved' ? '已上线' : '已拒绝'}
+                            </span>
+                        </div>
+                        <div class="application-detail">
+                            <div class="detail-item">
+                                <span class="detail-label">类型：</span>
+                                <span class="detail-value">${script.type}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">价格：</span>
+                                <span class="detail-value">¥${script.price}/人</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">难度：</span>
+                                <span class="detail-value">${script.difficulty}</span>
+                            </div>
+                        </div>
+                        ${script.status === 'pending' ? `
+                        <div class="application-actions">
+                            <button class="btn-approve" onclick="approveScript('${script.id}')">✓ 通过</button>
+                            <button class="btn-reject" onclick="openRejectModal('script', '${script.id}')">✗ 拒绝</button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ========== 创作者申请 ==========
+        function loadApplications() {
+            const creatorDB = getCreatorDB();
+            const applications = [...creatorDB.applications]
+                .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+            
+            const container = document.getElementById('applicationsList');
+            
+            if (applications.length === 0) {
+                container.innerHTML = `
+                    <div class="list-empty">
+                        <div class="list-empty-icon">📭</div>
+                        <p>暂无创作者申请</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 筛选按钮
+            const pendingApps = applications.filter(a => a.status === 'pending');
+            const approvedApps = applications.filter(a => a.status === 'approved');
+            const rejectedApps = applications.filter(a => a.status === 'rejected');
+
+            container.innerHTML = `
+                <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                    <button class="nav-btn active" onclick="filterApplications('all', this)">全部 (${applications.length})</button>
+                    <button class="nav-btn" onclick="filterApplications('pending', this)">待审核 (${pendingApps.length})</button>
+                    <button class="nav-btn" onclick="filterApplications('approved', this)">已通过 (${approvedApps.length})</button>
+                    <button class="nav-btn" onclick="filterApplications('rejected', this)">已拒绝 (${rejectedApps.length})</button>
+                </div>
+                <div id="applicationsFilterContent">
+                    ${renderApplications(applications)}
+                </div>
+            `;
+        }
+
+        function renderApplications(applications) {
+            return applications.map(app => `
+                <div class="application-card" data-status="${app.status}">
+                    <div class="application-header">
+                        <div class="applicant-info">
+                            <h3>${app.penName}</h3>
+                            <div class="applicant-meta">
+                                提交于 ${formatDate(app.submittedAt)}
+                                ${app.reviewedAt ? ` · 审核于 ${formatDate(app.reviewedAt)}` : ''}
+                            </div>
+                        </div>
+                        <span class="status-badge status-${app.status}">
+                            ${app.status === 'pending' ? '待审核' : app.status === 'approved' ? '已通过' : '已拒绝'}
+                        </span>
+                    </div>
+                    
+                    <div class="application-detail">
+                        <div class="detail-item">
+                            <span class="detail-label">真实姓名：</span>
+                            <span class="detail-value">${app.name}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">身份证：</span>
+                            <span class="detail-value">${app.idCard.replace(/(\d{4})\d{11}(\d{4})/, '$1***********$2')}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">邮箱：</span>
+                            <span class="detail-value">${app.email}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">专长：</span>
+                            <span class="detail-value">${app.specialty}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="application-body">
+                        <h4>📝 创作经历</h4>
+                        <p>${app.experience}</p>
+                    </div>
+                    
+                    ${app.bio ? `
+                    <div class="application-body">
+                        <h4>👤 创作者简介</h4>
+                        <p>${app.bio}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${app.portfolio ? `
+                    <div class="application-body">
+                        <h4>🔗 作品链接</h4>
+                        <p>${app.portfolio}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${app.reviewerNote ? `
+                    <div class="application-body" style="background: #fff3cd;">
+                        <h4>📌 拒绝原因</h4>
+                        <p>${app.reviewerNote}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${app.status === 'pending' ? `
+                    <div class="application-actions">
+                        <button class="btn-approve" onclick="approveApplication('${app.id}')">✓ 通过申请</button>
+                        <button class="btn-reject" onclick="openRejectModal('application', '${app.id}')">✗ 拒绝申请</button>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function filterApplications(filter, btn) {
+            document.querySelectorAll('#applicationsList .nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const creatorDB = getCreatorDB();
+            let applications = [...creatorDB.applications]
+                .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+            
+            if (filter !== 'all') {
+                applications = applications.filter(a => a.status === filter);
+            }
+            
+            document.getElementById('applicationsFilterContent').innerHTML = renderApplications(applications);
+        }
+
+        function approveApplication(appId) {
+            const creatorDB = getCreatorDB();
+            const app = creatorDB.applications.find(a => a.id === appId);
+            
+            if (!app) {
+                showToast('申请不存在', 'error');
+                return;
+            }
+
+            app.status = 'approved';
+            app.reviewedAt = new Date().toISOString();
+            
+            // 创建创作者记录
+            const creator = {
+                id: 'creator_' + Date.now(),
+                userId: app.userId,
+                name: app.name,
+                penName: app.penName,
+                specialty: app.specialty,
+                experience: app.experience,
+                portfolio: app.portfolio,
+                bio: app.bio,
+                tier: 'basic',
+                depositPaid: false,
+                createdAt: new Date().toISOString(),
+                stats: {
+                    scripts: 0,
+                    totalPlays: 0,
+                    totalRevenue: 0,
+                    followers: 0
+                }
+            };
+            creatorDB.creators.push(creator);
+
+            // 更新用户数据
+            const userData = getStorageData();
+            const user = userData.users.find(u => u.phone === app.userId);
+            if (user) {
+                user.isCreator = true;
+                user.creatorId = creator.id;
+                user.depositPaid = false;
+                saveStorageData(userData);
+            }
+
+            saveCreatorDB(creatorDB);
+            showToast('已通过申请', 'success');
+            loadTabData(currentTab);
+        }
+
+        // ========== 剧本审核 ==========
+        function loadScripts() {
+            const scriptsDB = getScriptsDB();
+            const scripts = [...scriptsDB.scripts]
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            
+            const container = document.getElementById('scriptsList');
+            
+            if (scripts.length === 0) {
+                container.innerHTML = `
+                    <div class="list-empty">
+                        <div class="list-empty-icon">📚</div>
+                        <p>暂无剧本</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const pendingScripts = scripts.filter(s => s.status === 'pending');
+            const approvedScripts = scripts.filter(s => s.status === 'approved');
+            const rejectedScripts = scripts.filter(s => s.status === 'rejected');
+
+            container.innerHTML = `
+                <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                    <button class="nav-btn active" onclick="filterScripts('all', this)">全部 (${scripts.length})</button>
+                    <button class="nav-btn" onclick="filterScripts('pending', this)">待审核 (${pendingScripts.length})</button>
+                    <button class="nav-btn" onclick="filterScripts('approved', this)">已上线 (${approvedScripts.length})</button>
+                    <button class="nav-btn" onclick="filterScripts('rejected', this)">已拒绝 (${rejectedScripts.length})</button>
+                </div>
+                <div id="scriptsFilterContent">
+                    ${renderScripts(scripts)}
+                </div>
+            `;
+        }
+
+        function renderScripts(scripts) {
+            return scripts.map(script => `
+                <div class="application-card" data-status="${script.status}">
+                    <div class="application-header">
+                        <div class="applicant-info">
+                            <h3>${script.title}</h3>
+                            <div class="applicant-meta">
+                                创建于 ${formatDate(script.createdAt)}
+                                ${script.reviewedAt ? ` · 审核于 ${formatDate(script.reviewedAt)}` : ''}
+                            </div>
+                        </div>
+                        <span class="status-badge status-${script.status}">
+                            ${script.status === 'pending' ? '待审核' : script.status === 'approved' ? '已上线' : '已拒绝'}
+                        </span>
+                    </div>
+                    
+                    <div class="application-detail">
+                        <div class="detail-item">
+                            <span class="detail-label">类型：</span>
+                            <span class="detail-value">${script.type}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">难度：</span>
+                            <span class="detail-value">${script.difficulty}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">价格：</span>
+                            <span class="detail-value">¥${script.price}/人</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">人数：</span>
+                            <span class="detail-value">${typeof script.players === 'object' ? `${script.players.min}-${script.players.max}人` : script.players}</span>
+                        </div>
+                    </div>
+                    
+                    ${script.fullDesc ? `
+                    <div class="application-body">
+                        <h4>📖 剧本简介</h4>
+                        <p>${script.fullDesc}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${script.reviewNote ? `
+                    <div class="application-body" style="background: #fff3cd;">
+                        <h4>📌 拒绝原因</h4>
+                        <p>${script.reviewNote}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${script.status === 'pending' ? `
+                    <div class="application-actions">
+                        <button class="btn-approve" onclick="approveScript('${script.id}')">✓ 通过上线</button>
+                        <button class="btn-reject" onclick="openRejectModal('script', '${script.id}')">✗ 拒绝</button>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function filterScripts(filter, btn) {
+            document.querySelectorAll('#scriptsList .nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const scriptsDB = getScriptsDB();
+            let scripts = [...scriptsDB.scripts]
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            
+            if (filter !== 'all') {
+                scripts = scripts.filter(s => s.status === filter);
+            }
+            
+            document.getElementById('scriptsFilterContent').innerHTML = renderScripts(scripts);
+        }
+
+        function approveScript(scriptId) {
+            const scriptsDB = getScriptsDB();
+            const script = scriptsDB.scripts.find(s => s.id == scriptId);
+            
+            if (!script) {
+                showToast('剧本不存在', 'error');
+                return;
+            }
+
+            script.status = 'approved';
+            script.reviewedAt = new Date().toISOString();
+            saveScriptsDB(scriptsDB);
+            
+            showToast('剧本已上线', 'success');
+            loadTabData(currentTab);
+        }
+
+        // ========== 创作者列表 ==========
+        function loadCreators() {
+            const creatorDB = getCreatorDB();
+            const creators = [...creatorDB.creators]
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            const container = document.getElementById('creatorsList');
+            
+            if (creators.length === 0) {
+                container.innerHTML = `
+                    <div class="list-empty">
+                        <div class="list-empty-icon">✍️</div>
+                        <p>暂无创作者</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = creators.map(creator => `
+                <div class="application-card">
+                    <div class="application-header">
+                        <div class="applicant-info">
+                            <h3>${creator.penName}</h3>
+                            <div class="applicant-meta">
+                                注册于 ${formatDate(creator.createdAt)}
+                            </div>
+                        </div>
+                        <span class="status-badge ${creator.depositPaid ? 'status-approved' : 'status-pending'}">
+                            ${creator.depositPaid ? '✓ 已缴纳保证金' : '⏳ 保证金待缴'}
+                        </span>
+                    </div>
+                    
+                    <div class="application-detail">
+                        <div class="detail-item">
+                            <span class="detail-label">等级：</span>
+                            <span class="detail-value">${creator.tier === 'basic' ? '基础' : creator.tier === 'silver' ? '白银' : '黄金'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">专长：</span>
+                            <span class="detail-value">${creator.specialty}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">剧本数：</span>
+                            <span class="detail-value">${creator.stats?.scripts || 0}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">体验次数：</span>
+                            <span class="detail-value">${creator.stats?.totalPlays || 0}</span>
+                        </div>
+                    </div>
+                    
+                    ${creator.bio ? `
+                    <div class="application-body">
+                        <h4>👤 简介</h4>
+                        <p>${creator.bio}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="application-actions">
+                        <button class="btn-view" onclick="viewCreatorDetail('${creator.id}')">查看详情</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewCreatorDetail(creatorId) {
+            const creatorDB = getCreatorDB();
+            const creator = creatorDB.creators.find(c => c.id === creatorId);
+            
+            if (creator) {
+                showToast(`${creator.penName} - 剧本: ${creator.stats?.scripts || 0}, 体验: ${creator.stats?.totalPlays || 0}`);
+            }
+        }
+
+        // ========== 拒绝弹窗 ==========
+        function openRejectModal(type, id) {
+            pendingRejectType = type;
+            pendingRejectId = id;
+            document.getElementById('rejectModal').classList.add('show');
+            document.getElementById('rejectReason').value = '';
+            document.getElementById('rejectReason').focus();
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.remove('show');
+            pendingRejectType = null;
+            pendingRejectId = null;
+        }
+
+        document.getElementById('confirmRejectBtn').addEventListener('click', () => {
+            const reason = document.getElementById('rejectReason').value.trim();
+            
+            if (!reason) {
+                showToast('请填写拒绝原因', 'error');
+                return;
+            }
+
+            if (pendingRejectType === 'application') {
+                rejectApplication(pendingRejectId, reason);
+            } else if (pendingRejectType === 'script') {
+                rejectScript(pendingRejectId, reason);
+            }
+            
+            closeRejectModal();
+        });
+
+        function rejectApplication(appId, reason) {
+            const creatorDB = getCreatorDB();
+            const app = creatorDB.applications.find(a => a.id === appId);
+            
+            if (!app) {
+                showToast('申请不存在', 'error');
+                return;
+            }
+
+            app.status = 'rejected';
+            app.reviewedAt = new Date().toISOString();
+            app.reviewerNote = reason;
+            
+            saveCreatorDB(creatorDB);
+            showToast('已拒绝申请', 'success');
+            loadTabData(currentTab);
+        }
+
+        function rejectScript(scriptId, reason) {
+            const scriptsDB = getScriptsDB();
+            const script = scriptsDB.scripts.find(s => s.id == scriptId);
+            
+            if (!script) {
+                showToast('剧本不存在', 'error');
+                return;
+            }
+
+            script.status = 'rejected';
+            script.reviewedAt = new Date().toISOString();
+            script.reviewNote = reason;
+            
+            saveScriptsDB(scriptsDB);
+            showToast('已拒绝剧本', 'success');
+            loadTabData(currentTab);
+        }
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            initLogin();
+        });
+    </script>
+</body>
+</html>

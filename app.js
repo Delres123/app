@@ -17,7 +17,7 @@ const SCRIPTS_DATA = [
         players: '5人',
         duration: '4小时',
         price: 188,
-        cover: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+        cover: 'url(images/script-mist-manor.jpg)',
         desc: '暴雨夜，山庄内接连发生诡异事件，真相扑朔迷离...',
         fullDesc: '暴雨之夜，五位素不相识的客人被困在偏僻的山庄中。午夜时分，山庄主人离奇死亡，而此时山庄已被暴雨冲垮了唯一的出路。在场的每一个人都有嫌疑，每一个人都藏着不可告人的秘密。你需要与时间赛跑，在黎明到来之前找出真凶，否则下一个受害者可能就是你...',
         location: '黄山风景区 · 西海大峡谷',
@@ -321,6 +321,8 @@ function navigateTo(pageName, data = null) {
             updateCreatorPage();
         } else if (pageName === 'creator-apply') {
             initCreatorApplyForm();
+        } else if (pageName === 'my-creations') {
+            updateMyCreationsPage();
         }
     }
 }
@@ -600,6 +602,76 @@ function updateProfilePage() {
         statNums[0].textContent = data.stats?.experiences || 0;
         statNums[1].textContent = data.stats?.favorites || 0;
         statNums[2].textContent = data.stats?.points || 0;
+    }
+}
+
+// 处理个人中心菜单点击
+function handleProfileMenuAction(action) {
+    switch(action) {
+        case 'orders':
+            showToast('我的订单功能开发中');
+            break;
+        case 'favorites':
+            showToast('我的收藏功能开发中');
+            break;
+        case 'reviews':
+            showToast('我的评价功能开发中');
+            break;
+        case 'coupons':
+            showToast('优惠券功能开发中');
+            break;
+        case 'settings':
+            showToast('设置功能开发中');
+            break;
+        case 'help':
+            showToast('帮助中心功能开发中');
+            break;
+        case 'my-creations':
+            navigateTo('my-creations');
+            break;
+        default:
+            showToast('功能开发中');
+    }
+}
+
+// 更新我的创作页面
+function updateMyCreationsPage() {
+    const data = getStorageData();
+    const listEl = document.getElementById('my-creations-list');
+    const emptyEl = document.getElementById('no-creations');
+    
+    // 获取当前用户的创作剧本
+    const myScripts = window.SCRIPTS?.filter(s => s.creatorId === data.phone) || [];
+    
+    if (myScripts.length === 0) {
+        // 没有创作，显示空状态
+        if (listEl) listEl.style.display = 'none';
+        if (emptyEl) emptyEl.style.display = 'block';
+    } else {
+        // 显示创作列表
+        if (emptyEl) emptyEl.style.display = 'none';
+        if (listEl) {
+            listEl.style.display = 'block';
+            listEl.innerHTML = myScripts.map(script => `
+                <div class="script-card" data-id="${script.id}" onclick="openScriptDetail(${script.id})">
+                    <div class="script-cover">
+                        <span class="script-tag">${script.tag}</span>
+                    </div>
+                    <div class="script-info">
+                        <h3>${script.title}</h3>
+                        <p class="script-location">${script.location}</p>
+                        <div class="script-meta">
+                            <span class="script-rating">⭐ ${script.rating}</span>
+                            <span class="script-price">¥${script.price}</span>
+                        </div>
+                        <div class="script-stats">
+                            <span>👁 ${script.views || 0}</span>
+                            <span>❤️ ${script.likes || 0}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
     }
 }
 
@@ -946,7 +1018,7 @@ function renderScriptsGrid(filter = '全部') {
 
     grid.innerHTML = filteredScripts.map(script => `
         <div class="script-card" data-id="${script.id}" onclick="openScriptDetail(${script.id})">
-            <div class="script-cover" style="background: ${script.cover}">
+            <div class="script-cover" style="background: ${script.cover}; background-size: cover; background-position: center;">
                 <span class="script-type">${script.type}</span>
                 <span class="script-rating">⭐ ${script.rating}</span>
             </div>
@@ -986,7 +1058,7 @@ function renderScriptDetail(script) {
     if (!container) return;
 
     container.innerHTML = `
-        <div class="detail-hero" style="background: ${script.cover}">
+        <div class="detail-hero" style="background: ${script.cover}; background-size: cover; background-position: center;">
             <h2>${script.title}</h2>
             <div class="detail-meta">
                 <span>⭐ ${script.rating}</span>
@@ -1128,6 +1200,14 @@ function initEventListeners() {
 
     // 退出登录
     document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
+    // 个人中心菜单点击
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const action = item.dataset.action;
+            handleProfileMenuAction(action);
+        });
+    });
 
     // 预约日期选择
     document.querySelectorAll('.date-item').forEach(item => {
